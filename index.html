@@ -6,6 +6,9 @@
         type="text/css">
     <link href="https://cdn.jsdelivr.net/npm/quasar@2.6.0/dist/quasar.prod.css" rel="stylesheet" type="text/css">
     <!-- Icons from https://seiyria.com/gameicons-font/ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/svg-injector/1.1.3/svg-injector.min.js"
+        integrity="sha512-LpKoEmPyokcDYSjRJ/7WgybgdAYFsKtCrGC9m+VBwcefe1vHXyUnD9fTQb3nXVJda6ny1J84UR+iBtEYm3OQmQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 </head>
 
@@ -83,20 +86,12 @@
             </template>
             <template v-slot:after>
                 <!-- Colonne droite -->
-                <q-card class="no-print q-ma-sm">
-                    <q-card-section>
-                        Coucou {{ message }}. {{panel2tab}}
-                        <hr>
-                        {{ donnees }}
-                        <hr>
-                        headers: {{ headers }}
-                        <hr>
-                        {{cartes}}
-                        <hr>
-                        {{CSS}}
-                    </q-card-section>
-                </q-card>
-                <div class="feuille">
+                <div class="row no-print">
+                    <div class="col-10 offset-1">
+                        <q-slider v-model="zoom" :min="0.1" :max="2" :step="0.1"></q-slider>
+                    </div>
+                </div>
+                <div class="feuille" :style="{zoom: zoom}">
                     <div class="carte" v-for="carte in cartes" :key="carte"
                         :style="{ width: W + 'mm', height: H + 'mm' }" v-html="carte">
                     </div>
@@ -109,7 +104,6 @@
 
     <style>
         .carte {
-            border: 1px solid black;
             float: left;
             position: relative;
         }
@@ -117,7 +111,6 @@
         .feuille {
             background: lightgray;
             overflow: hidden;
-            zoom: .75;
         }
     </style>
 
@@ -153,15 +146,23 @@ Carte,crossroad,"Grâce à toi,, j’ai pu prendre une décision difficile"
 Carte,honeycomb,"Grâce à toi,, j’ai découvert quelque chose qui va améliorer ma vie"
 Carte,trail,"Grâce à toi,, j’ai progressé dans un domaine de ma vie"
 Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
-                    CSSSrc: `.background { background: white; width: 100%; height: 100%;}
-.icone {width: 20mm; height: 20mm;}`,
+                    CSSSrc: `.carte{background: purple; padding: 3mm; border-radius:3mm;}
+.background { background: white; width: 100%; height: 100%; border-radius:2mm;}
+.icone {height: 26mm; width: 26mm; position: absolute; top: 10mm; left: 19mm;}
+.icone svg, .icone image {width: inherit; height: inherit}
+.icone svg path {fill:purple;}
+.texte{color: purple; position: relative; top: 40mm; width: inherit; padding: 0 5mm; text-align:center; font-size: 5mm; line-height: 1;}
+`,
                     layoutSrc: `<div class="background">
-<div class="icone" style="background: url(https://seiyria.com/gameicons-font/svg/%Icone%.svg);"></div>
+<div class="icone">       
+     <img src="https://seiyria.com/gameicons-font/svg/%Icone%.svg" onload="SVGInjector(this)"/>    
+</div>
 <div class="texte">%Texte%</div>
 </div>`,
                     donnees: [],
                     W: 64,
-                    H: 88
+                    H: 88,
+                    zoom: 1
                 }
             },
             computed: {
@@ -215,10 +216,6 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
     </script>
 
     <style>
-        .no-print {
-            opacity: .5
-        }
-
         @media print {
 
             .no-print,
