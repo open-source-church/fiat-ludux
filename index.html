@@ -107,11 +107,6 @@
             float: left;
             position: relative;
         }
-
-        .feuille {
-            background: lightgray;
-            overflow: hidden;
-        }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
@@ -154,9 +149,7 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
 .texte{color: purple; position: relative; top: 40mm; width: inherit; padding: 0 5mm; text-align:center; font-size: 5mm; line-height: 1;}
 `,
                     layoutSrc: `<div class="background">
-<div class="icone">       
-     <img src="https://seiyria.com/gameicons-font/svg/%Icone%.svg" onload="SVGInjector(this)"/>    
-</div>
+<div class="icone">{{GI:%Icone%}}</div>
 <div class="texte">%Texte%</div>
 </div>`,
                     donnees: [],
@@ -168,8 +161,14 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
             computed: {
                 cartes() {
                     return this.donnees.map(d => {
+                        // Remplace les valeurs des données CSV: %Nom%
                         var lyt = this.layoutSrc
                         this.headers.forEach(H => lyt = lyt.replaceAll("%" + H + "%", d[H]))
+
+                        // Macros: icone de game-icons : {{GI:NOM}}
+                        // Liste des icones: https://seiyria.com/gameicons-font/
+                        lyt = lyt.replaceAll(/\{\{GI:(.*?)\}\}/g, '<img src="https://seiyria.com/gameicons-font/svg/$1.svg" onload="SVGInjector(this)"/>')
+
                         return lyt
                     }
                     )
