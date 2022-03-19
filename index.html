@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet"
+        type="text/css">
+    <link href="https://cdn.jsdelivr.net/npm/quasar@2.6.0/dist/quasar.prod.css" rel="stylesheet" type="text/css">
+    <!-- Icons from https://seiyria.com/gameicons-font/ -->
+
+</head>
+
+<body>
+    <!-- example of injection point where you write your app template -->
+    <div id="q-app">
+        <q-splitter v-model="splitterModel" style="height: 100vh" :limits="[30, 70]">
+            <template v-slot:before>
+                <!-- Colonne gauche -->
+                <div class="q-pa-sm">
+                    <q-list bordered class="rounded-borders">
+                        <!-- Paramètres -->
+                        <q-expansion-item expand-separator icon="settings" label="Paramètres" caption="">
+                            <q-card>
+                                <q-card-section>
+                                    <p class="text-overline">Dimensions de la carte</p>
+                                    <div class="row justify-center">
+                                        <div class="col-4">
+                                            <q-input dense v-model.number="W" type="number" filled hint="largeur">
+                                            </q-input>
+                                        </div>
+                                        <div class="col-1 text-center">×</div>
+                                        <div class="col-4">
+                                            <q-input dense v-model.number="H" type="number" filled hint="hauteur">
+                                            </q-input>
+                                        </div>
+                                    </div>
+                                </q-card-section>
+                            </q-card>
+                        </q-expansion-item>
+
+                        <!-- Données -->
+                        <q-expansion-item expand-separator icon="description" label="Données">
+                            <q-card>
+                                <q-tabs v-model="panel2tab" dense class="text-grey" active-color="primary"
+                                    indicator-color="primary" align="justify" narrow-indicator>
+                                    <q-tab name="csv" label="CSV"></q-tab>
+                                    <q-tab name="data" label="Data"></q-tab>
+                                </q-tabs>
+
+                                <q-separator></q-separator>
+
+                                <q-tab-panels v-model="panel2tab" animated>
+                                    <q-tab-panel name="csv" class="q-pa-none">
+                                        <q-input v-model="csvSrc" filled type="textarea" />
+                                    </q-tab-panel>
+
+                                    <q-tab-panel name="data" class="q-pa-none">
+                                        <q-table :rows="donnees" :columns="tableHeaders" row-key="name">
+                                        </q-table>
+                                    </q-tab-panel>
+                                </q-tab-panels>
+                            </q-card>
+                        </q-expansion-item>
+
+                        <!-- CSS -->
+                        <q-expansion-item expand-separator icon="style" label="CSS">
+                            <q-card>
+                                <q-card-section class="q-pa-none">
+                                    <q-input v-model="CSSSrc" filled type="textarea" />
+                                </q-card-section>
+                            </q-card>
+                        </q-expansion-item>
+
+                        <!-- Layout -->
+                        <q-expansion-item icon="format_shapes" label="Layout">
+                            <q-card>
+                                <q-card-section class="q-pa-none">
+                                    <q-input v-model="layoutSrc" filled type="textarea" />
+                                </q-card-section>
+                            </q-card>
+                        </q-expansion-item>
+                    </q-list>
+                </div>
+            </template>
+            <template v-slot:after>
+                <!-- Colonne droite -->
+                <q-card class="no-print q-ma-sm">
+                    <q-card-section>
+                        Coucou {{ message }}. {{panel2tab}}
+                        <hr>
+                        {{ donnees }}
+                        <hr>
+                        headers: {{ headers }}
+                        <hr>
+                        {{cartes}}
+                        <hr>
+                        {{CSS}}
+                    </q-card-section>
+                </q-card>
+                <div class="feuille">
+                    <div class="carte" v-for="carte in cartes" :key="carte"
+                        :style="{ width: W + 'mm', height: H + 'mm' }" v-html="carte">
+                    </div>
+                </div>
+
+            </template>
+
+        </q-splitter>
+    </div>
+
+    <style>
+        .carte {
+            border: 1px solid black;
+            float: left;
+            position: relative;
+        }
+
+        .feuille {
+            background: lightgray;
+            overflow: hidden;
+            zoom: .75;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quasar@2.6.0/dist/quasar.umd.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quasar@2.6.0/dist/lang/fr.umd.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <script src="https://cdn.rawgit.com/Keyang/node-csvtojson/d41f44aa/browser/csvtojson.min.js"></script>
+
+    <script>
+        /**
+        * Utility function to add replaceable CSS.
+        * https://stackoverflow.com/a/15506705
+        * @param {string} styleString
+        */
+        const updateStyle = (() => {
+            const style = document.createElement('style');
+            document.head.append(style);
+            return (styleString) => style.textContent = styleString;
+        })();
+        const app = Vue.createApp({
+            setup() {
+                return {}
+            },
+            data() {
+                return {
+                    message: "Olivier",
+                    splitterModel: 40,
+                    panel2tab: "csv",
+                    csvSrc: `Type,Icone,Texte
+Carte,direction-signs,"Grace à toi,, j’ai changé d’avis sur un sujet important"
+Carte,crossroad,"Grâce à toi,, j’ai pu prendre une décision difficile"
+Carte,honeycomb,"Grâce à toi,, j’ai découvert quelque chose qui va améliorer ma vie"
+Carte,trail,"Grâce à toi,, j’ai progressé dans un domaine de ma vie"
+Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
+                    CSSSrc: `.background { background: white; width: 100%; height: 100%;}
+.icone {width: 20mm; height: 20mm;}`,
+                    layoutSrc: `<div class="background">
+<div class="icone" style="background: url(https://seiyria.com/gameicons-font/svg/%Icone%.svg);"></div>
+<div class="texte">%Texte%</div>
+</div>`,
+                    donnees: [],
+                    W: 64,
+                    H: 88
+                }
+            },
+            computed: {
+                cartes() {
+                    return this.donnees.map(d => {
+                        var lyt = this.layoutSrc
+                        this.headers.forEach(H => lyt = lyt.replaceAll("%" + H + "%", d[H]))
+                        return lyt
+                    }
+                    )
+                },
+                headers() {
+                    content = this.csvSrc.split('\n')
+                    return content[0].split(',').map(t => _.trim(t))
+                },
+                CSS() {
+                    return this.CSSSrc
+                },
+                tableHeaders() {
+                    content = this.csvSrc.split('\n')
+                    header = content[0].split(',').map(t => _.trim(t))
+                    return header.map(h => {
+                        return {
+                            name: h,
+                            sortable: false,
+                            label: h,
+                            align: "left",
+                            field: h
+                        }
+                    })
+                }
+            },
+            watch: {
+                csvSrc: {
+                    immediate: true,
+                    async handler() {
+                        this.donnees = await csv().fromString(this.csvSrc).then((result) => result)
+                    },
+                },
+                CSS: {
+                    immediate: true,
+                    handler() { updateStyle(this.CSS) }
+                }
+            }
+        })
+
+        app.use(Quasar)
+        Quasar.lang.set(Quasar.lang.fr)
+        app.mount('#q-app')
+
+    </script>
+
+    <style>
+        .no-print {
+            opacity: .5
+        }
+
+        @media print {
+
+            .no-print,
+            .q-splitter__before,
+            .q-splitter__separator {
+                display: none !important;
+            }
+
+            q-splitter__panel {
+                position: absolute;
+                left: 0;
+            }
+
+            .feuille {
+                zoom: 100% !important;
+                width: auto;
+                height: auto;
+            }
+
+            div {
+                page-break-inside: avoid;
+            }
+
+            .q-splitter {
+                height: auto !important;
+            }
+
+            body,
+            .q-splitter__after,
+            .feuille {
+                margin: 0px;
+                padding: 0px;
+            }
+        }
+    </style>
+</body>
+
+</html>
