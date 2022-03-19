@@ -75,6 +75,18 @@
 
                         <!-- Layout -->
                         <q-expansion-item icon="format_shapes" label="Layout">
+                            <template v-slot:header>
+                                <q-item-section avatar>
+                                    <q-icon name="format_shapes" />
+                                </q-item-section>
+                                <q-item-section>Layout</q-item-section>
+                                <q-item-section side>
+                                    <div class="row items-center">
+                                        <q-btn flat round icon="info" color="info" @click.stop="dialogHelpLayout">
+                                        </q-btn>
+                                    </div>
+                                </q-item-section>
+                            </template>
                             <q-card>
                                 <q-card-section class="q-pa-none">
                                     <q-input v-model="layoutSrc" filled type="textarea" />
@@ -204,6 +216,21 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
                 CSS: {
                     immediate: true,
                     handler() { updateStyle(this.CSS) }
+                }
+            },
+            methods: {
+                dialogHelpLayout() {
+                    var msg = []
+                    msg.push("Créez le layout en <b>HTML</b>.")
+                    msg.push(`Vous pouvez utiliser les titres de vos données CSV comme ceci: <code>%Titre%</code>. Les titres détectés dans vos données actuellement sont: <code>${this.headers.join(", ")}</code>.`)
+                    msg.push("Les maccros suivantes sont aussi disponibles:")
+                    msg.push("* <code>{{GI:nom}}</code> pour importer une icone de <a href=\"https://seiyria.com/gameicons-font/\" target=\"_blank\">game-icons</a>.")
+                    
+                    Quasar.Dialog.create({
+                        title: 'Création de layout',
+                        message: msg.map(t => `<p>${t}</p>`).join("\n"),
+                        html: true
+                    })
                 }
             }
         })
