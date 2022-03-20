@@ -74,6 +74,20 @@
 
             <!-- Données -->
             <q-expansion-item expand-separator icon="description" label="Données">
+              <!-- Custom header -->
+              <template v-slot:header>
+                <q-item-section avatar>
+                  <q-icon name="description" />
+                </q-item-section>
+                <q-item-section>Données</q-item-section>
+                <q-item-section side>
+                  <div class="row items-center">
+                    <q-btn flat round icon="info" color="info" @click.stop="dialogHelpDonnees">
+                    </q-btn>
+                  </div>
+                </q-item-section>
+              </template>
+              <!-- Carte -->
               <q-card>
                 <q-tabs v-model="panel2tab" dense class="text-grey" active-color="primary" indicator-color="primary"
                   align="justify" narrow-indicator>
@@ -376,6 +390,20 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
 
           Quasar.Dialog.create({
             title: 'Création de layout',
+            message: msg.map(t => `<p>${t}</p>`).join("\n"),
+            html: true
+          })
+        },
+        dialogHelpDonnees() {
+          var msg = []
+          msg.push("Entrez les données au format <b>CSV</b>.")
+          msg.push(`La première ligne donne le nom des catégories qui pourront être utilisées pour créer les cartes.`)
+          msg.push("Certains noms sont reservés pour des effets particuliers:")
+          msg.push("* <code>Type</code> permet de créer différents types de cartes, avec leur propre <b>Layout</b> chacune.")
+          msg.push("* <code>N</code> permet de créer plusieurs fois la même carte.")
+
+          Quasar.Dialog.create({
+            title: 'Données des cartes',
             message: msg.map(t => `<p>${t}</p>`).join("\n"),
             html: true
           })
