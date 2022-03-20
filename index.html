@@ -107,6 +107,7 @@
 
             <!-- Layout -->
             <q-expansion-item icon="format_shapes" label="Layout">
+              <!-- Custom header -->
               <template v-slot:header>
                 <q-item-section avatar>
                   <q-icon name="format_shapes" />
@@ -120,12 +121,31 @@
                 </q-item-section>
               </template>
               <q-card>
-                <q-card-section class="q-pa-none">
+                <!-- Tabs -->
+                <q-tabs v-model="panelLayoutTabs" dense class="text-grey" active-color="primary"
+                  indicator-color="primary" align="justify" narrow-indicator>
+                  <q-tab v-for="type in types" :name="type" :label="type"></q-tab>
+                </q-tabs>
+
+                <q-separator></q-separator>
+
+                <q-tab-panels v-model="panelLayoutTabs" animated v-for="type in types">
+                  <q-tab-panel :name="type" class="q-pa-none">
+                    <q-input v-model="layoutSrcTypes[type]" filled type="textarea" />
+                  </q-tab-panel>
+                </q-tab-panels>
+                <q-separator></q-separator>
+                <!-- Original -->
+                <q-card-section class="q-pa-none" v-if="types.length == 0">
                   <q-input v-model="layoutSrc" filled type="textarea" />
                 </q-card-section>
               </q-card>
             </q-expansion-item>
           </q-list>
+
+          {{ types }}
+          <hr>
+          
         </div>
       </template>
       <template v-slot:after>
@@ -188,8 +208,21 @@
           // UI things
           splitterModel: 40,
           panel2tab: "csv",
+          panelLayoutTabs: "",
           // CSV un exemple
           csvSrc: `Type,Icone,Texte
+Titre, , GrattiCartes
+Règles,,"**Règles**
+
+*⇒* À deux, en petit groupe, lors d’une cérémonie d’adieu, etc. pour susciter des occasions de se remercier.
+
+*⇒* Lors d’un événement de longue durée, distribuer les cartes aux participant·e·s, qui peuvent se les échanger quand les occasions se présentent.
+
+
+<span class='credits'>**Crédits**
+:CC-BY: *www.holygames.ch*
+Adapté de <i>Thanker Cards</i> de Alexandre Quach (#OSG 703)
+</span>"
 Carte,direction-signs,"Grace à toi,, j’ai changé d’avis sur un sujet important"
 Carte,crossroad,"Grâce à toi,, j’ai pu prendre une décision difficile"
 Carte,honeycomb,"Grâce à toi,, j’ai découvert quelque chose qui va améliorer ma vie"
@@ -202,13 +235,24 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
 .icone svg, .icone image {width: inherit; height: inherit}
 .icone svg path {fill:purple;}
 .texte{color: purple; position: relative; top: 40mm; width: inherit; padding: 0 5mm; text-align:center; font-size: 5mm; line-height: 1;}
-`,
+.titre-texte {font-size: 9mm; color: white; top:59mm;}
+.titre-icone {display: block; width: 40mm; top: 10mm; left: 13mm; position: absolute;}
+.regle.texte {top: 3mm; font-size: 4mm; text-align: left;}
+.credits {font-size: 3.3mm;}`,
           // Layout
-          layoutSrc: `<div class="background">
+          layoutSrc: "",
+          layoutSrcTypes: {
+            Titre: `<img class="titre-icone" src="https://i.ibb.co/k4CVVc7/logo-cube-seul-white.png">
+<div class="titre-texte texte">%Texte%</div>`,
+            Carte: `<div class="background">
 <div class="icone">{{GI:%Icone%}}</div>
 <div class="texte">%Texte%</div>
 </div>`,
+            Règles: `<div class="background">
+<div class="regle texte">%Texte%</div>`
+          }, // layout by types
           donnees: [], // données extraites du CSV
+          tyapes: [], // types extraits des données
           W: 64, // dimensions des cartes
           H: 88,
           zoom: 1, // le zoom de la vue des cartes
@@ -221,7 +265,11 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
         cartes() {
           return this.donnees.map(d => {
             // Remplace les valeurs des données CSV: %Nom%
-            var lyt = this.layoutSrc
+            if (d.Type) {
+              var lyt = this.layoutSrcTypes[d.Type] || ""
+            } else {
+              var lyt = this.layoutSrc
+            }
             this.headers.forEach(H => lyt = lyt.replaceAll("%" + H + "%", d[H]))
 
             // Macros: icone de game-icons : {{GI:NOM}}
@@ -252,6 +300,9 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
             }
           })
         },
+        types() {
+          return _.uniq(this.donnees.map(d => d.Type)).filter(d => d)
+        },
         // Une variable pour les unifier tous
         singleJSON() {
           return {
@@ -261,6 +312,7 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
             },
             CSS: this.CSSSrc,
             Layout: this.layoutSrc,
+            LayoutTypes: _.cloneDeep(this.layoutSrcTypes),
             CSV: this.csvSrc
           }
         }
@@ -294,13 +346,15 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
                 self.W = val.params.W
                 self.CSSSrc = val.CSS
                 self.layoutSrc = val.Layout
-                self.csvSrc = val.CSV
+                self.layoutSrcTypes = _.cloneDeep(val.LayoutTypes),
+                  self.csvSrc = val.CSV
               })
           } else {
             self.H = 88
             self.W = 64
             self.CSSSrc = ""
             self.layoutSrc = ""
+            self.layoutSrcTypes = {}
             self.csvSrc = ""
           }
         }
@@ -351,6 +405,7 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
                 params: { H: 88, W: 64 },
                 CSS: "",
                 Layout: "",
+                LayoutTypes: {},
                 CSV: ""
               })
                 // On update la liste des projets
