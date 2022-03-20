@@ -27,12 +27,9 @@
                   <!-- Import / export -->
                   <p class="text-overline">Import / export</p>
                   <div class="row q-mb-sm">
-                    <div class="col-6">
-                      <q-btn flat class="full-width" icon="file_download" label="Enregistrer" @click="save"></q-btn>
-                    </div>
-                    <div class="col-6">
-                      <q-btn flat class="full-width" icon="file_upload" label="Importer" @click="load"></q-btn>
-                    </div>
+                    <q-btn class="col" flat class="full-width" icon="content_copy" label="Copier" @click="copy"></q-btn>
+                    <q-btn class="col" flat class="full-width" icon="file_download" label="Enregistrer" @click="save"></q-btn>
+                    <q-btn class="col" flat class="full-width" icon="content_paste" label="Coller" @click="load"></q-btn>
                   </div>
                   <!-- Local projects -->
                   <p class="text-overline">Enregistré localement</p>
@@ -495,7 +492,11 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
         },
         // Import / export
         save() {
-          Quasar.exportFile('projet.json', JSON.stringify(this.singleJSON))
+          Quasar.exportFile('projet.json', JSON.stringify(this.singleJSON, null, 4))
+        },
+        copy() {
+          Quasar.copyToClipboard(JSON.stringify(this.singleJSON, null, 4))
+          .then(() => Quasar.Notify.create("Contenu copié dans le presse-papier."))
         },
         load() {
           var self = this
