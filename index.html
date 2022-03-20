@@ -224,7 +224,7 @@
           panel2tab: "csv",
           panelLayoutTabs: "",
           // CSV un exemple
-          csvSrc: `Type,Icone,Texte
+          csvSrc: `Type,Icone,Texte, N
 Titre, , GrattiCartes
 Règles,,"**Règles**
 
@@ -237,8 +237,8 @@ Règles,,"**Règles**
 :CC-BY: *www.holygames.ch*
 Adapté de <i>Thanker Cards</i> de Alexandre Quach (#OSG 703)
 </span>"
-Carte,direction-signs,"Grace à toi,, j’ai changé d’avis sur un sujet important"
-Carte,crossroad,"Grâce à toi,, j’ai pu prendre une décision difficile"
+Carte,direction-signs,"Grace à toi,, j’ai changé d’avis sur un sujet important", 2
+Carte,crossroad,"Grâce à toi,, j’ai pu prendre une décision difficile", 2
 Carte,honeycomb,"Grâce à toi,, j’ai découvert quelque chose qui va améliorer ma vie"
 Carte,trail,"Grâce à toi,, j’ai progressé dans un domaine de ma vie"
 Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
@@ -277,7 +277,9 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
       },
       computed: {
         cartes() {
-          return this.donnees.map(d => {
+          // On crée plusieurs cartes pour celles qui ont une valeur N
+          var data = this.donnees.flatMap(e => Array(parseInt(e.N) || 1).fill(e))
+          return data.map(d => {
             // Remplace les valeurs des données CSV: %Nom%
             if (d.Type) {
               var lyt = this.layoutSrcTypes[d.Type] || ""
