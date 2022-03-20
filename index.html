@@ -24,6 +24,16 @@
             <q-expansion-item expand-separator icon="star" label="Projet" caption="">
               <q-card>
                 <q-card-section>
+                  <!-- Import / export -->
+                  <p class="text-overline">Import / export</p>
+                  <div class="row q-mb-sm">
+                    <div class="col-6">
+                      <q-btn flat class="full-width" icon="file_download" label="Enregistrer" @click="save"></q-btn>
+                    </div>
+                    <div class="col-6">
+                      <q-btn flat class="full-width" icon="file_upload" label="Importer" @click="load"></q-btn>
+                    </div>
+                  </div>
                   <!-- Local projects -->
                   <p class="text-overline">Enregistré localement</p>
                   <div class="row q-mb-sm">
@@ -47,7 +57,9 @@
                       <q-btn dense round flat icon="delete" @click="deleteProject"></q-btn>
                     </div>
                   </div>
+                  <!-- Projets OSC -->
                   <p class="text-overline">Projets Open Source Church</p>
+                  <q-select dense filled :options="OSCProjects" @update:model-value="loadOSCProject"></q-select>
                 </q-card-section>
               </q-card>
             </q-expansion-item>
@@ -156,10 +168,6 @@
               </q-card>
             </q-expansion-item>
           </q-list>
-
-          {{ types }}
-          <hr>
-          
         </div>
       </template>
       <template v-slot:after>
@@ -187,6 +195,7 @@
     }
   </style>
 
+  <!-- Beeeeeaaaaauuucoup trop de bibliothèques js -->
   <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/quasar@2.6.0/dist/quasar.umd.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/quasar@2.6.0/dist/lang/fr.umd.prod.js"></script>
@@ -195,6 +204,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"
     integrity="sha512-+BMamP0e7wn39JGL8nKAZ3yAQT2dL5oaXWr4ZYlTGkKOaoXM/Yj7c4oy50Ngz5yoUutAG17flueD4F6QpTlPng=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
   <script>
     /**
@@ -225,7 +235,7 @@
           panelLayoutTabs: "",
           // CSV un exemple
           csvSrc: `Type,Icone,Texte, N
-Titre, , GrattiCartes
+Titre, , GRATTI<br>CARTES,
 Règles,,"**Règles**
 
 *⇒* À deux, en petit groupe, lors d’une cérémonie d’adieu, etc. pour susciter des occasions de se remercier.
@@ -237,20 +247,23 @@ Règles,,"**Règles**
 :CC-BY: *www.holygames.ch*
 Adapté de <i>Thanker Cards</i> de Alexandre Quach (#OSG 703)
 </span>"
-Carte,direction-signs,"Grace à toi,, j’ai changé d’avis sur un sujet important", 2
-Carte,crossroad,"Grâce à toi,, j’ai pu prendre une décision difficile", 2
+Carte,direction-signs,"Grace à toi,, j’ai changé d’avis sur un sujet important", 1
+Carte,crossroad,"Grâce à toi,, j’ai pu prendre une décision difficile", 1
 Carte,honeycomb,"Grâce à toi,, j’ai découvert quelque chose qui va améliorer ma vie"
 Carte,trail,"Grâce à toi,, j’ai progressé dans un domaine de ma vie"
 Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
           // CSS
-          CSSSrc: `.carte{background: purple; padding: 3mm; border-radius:3mm;}
+          CSSSrc: `@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400&display=swap');
+.carte{background: purple; padding: 3mm; border-radius:3mm;  }
 .background { background: white; width: 100%; height: 100%; border-radius:2mm;}
 .icone {height: 26mm; width: 26mm; position: absolute; top: 10mm; left: 19mm;}
 .icone svg, .icone image {width: inherit; height: inherit}
 .icone svg path {fill:purple;}
 .texte{color: purple; position: relative; top: 40mm; width: inherit; padding: 0 5mm; text-align:center; font-size: 5mm; line-height: 1;}
-.titre-texte {font-size: 9mm; color: white; top:59mm;}
-.titre-icone {display: block; width: 40mm; top: 10mm; left: 13mm; position: absolute;}
+.logo {width: 10mm; position: absolute; top: 71mm; left: 5mm;}
+.desc {font-size: 3mm; position: absolute; top: 73.6mm; left: 17mm; width: 45mm; line-height: 1; color: purple;}
+.titre-texte {position:relative; font-size: 9mm; color: white; top:50mm; width: initial; font-family: 'Source Code Pro', monospace;}
+.titre-icone {display: block; width: 30mm; top: 10mm; left: 17mm; position: absolute;}
 .regle.texte {top: 3mm; font-size: 4mm; text-align: left;}
 .credits {font-size: 3.3mm;}`,
           // Layout
@@ -261,6 +274,8 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
             Carte: `<div class="background">
 <div class="icone">{{GI:%Icone%}}</div>
 <div class="texte">%Texte%</div>
+<img src="https://i.ibb.co/x2Srz4s/logo-cube-seul.png" class="logo">
+<div class="desc">Donnez cette carte à quelqu'un, en lui expliquant pourquoi.</div>
 </div>`,
             Règles: `<div class="background">
 <div class="regle texte">%Texte%</div>`
@@ -273,6 +288,11 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
           // Enregistrement local
           selectLocalProject: null, // le nom du projet selectionné par le q-select
           localProjects: [], // la liste des projets locaux
+          // Open Source Projects
+          OSCProjects: [{
+            label: "GrattiCartes",
+            value: "https://gist.githubusercontent.com/olivierkes/244dddece608d67a3cb68226a915e91b/raw"
+          }]
         }
       },
       computed: {
@@ -357,14 +377,7 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
           var self = this
           if (this.selectLocalProject) {
             localforage.getItem(this.selectLocalProject)
-              .then(val => {
-                self.H = val.params.H
-                self.W = val.params.W
-                self.CSSSrc = val.CSS
-                self.layoutSrc = val.Layout
-                self.layoutSrcTypes = _.cloneDeep(val.LayoutTypes),
-                  self.csvSrc = val.CSV
-              })
+              .then(val => self.loadSingleJSON(val))
           } else {
             self.H = 88
             self.W = 64
@@ -382,6 +395,18 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
         this.saveLocalProject = Quasar.debounce(this.saveLocalProject, 1000)
       },
       methods: {
+        // IO
+        /*
+        On charge les variables locales à partir du One JSON.
+        */
+        loadSingleJSON(val) {
+          this.H = val.params.H
+          this.W = val.params.W
+          this.CSSSrc = val.CSS
+          this.layoutSrc = val.Layout
+          this.layoutSrcTypes = _.cloneDeep(val.LayoutTypes)
+          this.csvSrc = val.CSV
+        },
         // Dialogues d'aide
         dialogHelpLayout() {
           var msg = []
@@ -410,6 +435,7 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
             html: true
           })
         },
+        // LocalForage
         saveLocalProject() {
           if (this.selectLocalProject) {
             localforage.setItem(this.selectLocalProject, this.singleJSON)
@@ -465,6 +491,36 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
             console.log("Projets locaux:", keys)
           }).catch(function (err) {
             console.log(err);
+          })
+        },
+        // Import / export
+        save() {
+          Quasar.exportFile('projet.json', JSON.stringify(this.singleJSON))
+        },
+        load() {
+          var self = this
+          Quasar.Dialog.create({
+            title: 'Import',
+            message: "Collez le contenu d'un fichier JSON de sauvegarde",
+            prompt: {
+              model: '',
+              type: 'textarea' // optional
+            },
+            cancel: true,
+          }).onOk(data => {
+            val = JSON.parse(data)
+            self.loadSingleJSON(val)
+          })
+        },
+        // OSC Projects
+        loadOSCProject(val) {
+          var self = this
+          Quasar.Loading.show({
+            message: `Importation en cours de ${val.label}… on y croit !`
+          })
+          axios.get(val.value).then(res => {
+            self.loadSingleJSON(res.data)
+            Quasar.Loading.hide()
           })
         }
       }
