@@ -34,13 +34,12 @@
             <q-tab-panel name="projet">
               <p class="text-h5 q-mt-md q-pt-md">Sauvegarde</p>
               <!-- Import / export -->
-              <p class="text-subtitle1">Import / export</p>
+              <p class="text-subtitle1">Import / export JSON</p>
+              <p>Un fichier JSON qui contient toutes les données du projet en cour.</p>
               <div class="row q-mb-sm">
                 <q-btn class="col" flat class="full-width" icon="content_copy" label="Copier" @click="copy"></q-btn>
-                <q-btn class="col" flat class="full-width" icon="file_download" label="Enregistrer" @click="save">
-                </q-btn>
-                <q-btn class="col" flat class="full-width" icon="content_paste" label="Coller" @click="load">
-                </q-btn>
+                <q-btn class="col" flat class="full-width" icon="file_download" label="Enregistrer" @click="save"></q-btn>
+                <q-btn class="col" flat class="full-width" icon="content_paste" label="Coller" @click="load"></q-btn>
               </div>
               <!-- Local projects -->
               <p class="text-subtitle1">Projet locaux</p>
@@ -68,7 +67,15 @@
               </div>
               <!-- Projets OSC -->
               <p class="text-subtitle1">Importer un projet Open Source Church</p>
-              <p>Vous pouvez importer un projet Open Source Church. Si êtes sur un projet local, celui-ci sera remplacé (créez un nouveau projet avant si vous souhaitez éviter cela.).</p>
+              <div class="row">
+                <p class="col-10">Vous pouvez importer un projet Open Source Church. Si êtes sur un projet local,
+                  celui-ci sera remplacé (créez un nouveau projet avant si vous souhaitez éviter cela.).
+                  Faites-vous plaisir avec — et si vous en dérivez des trucs cool, partagez-les :)
+                </p>
+                <a class="col-2" href="https://www.open-source.church" target="_blank">
+                  <img src="https://www.open-source.church/images/logo/logo.webp" style="height: fit-content;">
+                </a>
+              </div>
               <q-select dense filled :options="OSCProjects" @update:model-value="loadOSCProject"></q-select>
 
               <!-- Paramètres -->
