@@ -14,157 +14,121 @@
 
 <body>
   <!-- example of injection point where you write your app template -->
-  <div id="q-app">
-    <q-splitter v-model="splitterModel" style="height: 100vh" :limits="[30, 70]">
+  <div id="q-app" style="height: 100vh; width: 100%;">
+    <q-splitter v-model="splitterModel" class="full-height" :limits="[30, 70]" before-class="column">
       <template v-slot:before>
         <!-- Colonne gauche -->
-        <div class="q-pa-sm">
-          <q-list bordered class="rounded-borders">
-            <!-- Projet -->
-            <q-expansion-item expand-separator icon="star" label="Projet" caption="">
-              <q-card>
-                <q-card-section>
-                  <!-- Import / export -->
-                  <p class="text-overline">Import / export</p>
-                  <div class="row q-mb-sm">
-                    <q-btn class="col" flat class="full-width" icon="content_copy" label="Copier" @click="copy"></q-btn>
-                    <q-btn class="col" flat class="full-width" icon="file_download" label="Enregistrer" @click="save"></q-btn>
-                    <q-btn class="col" flat class="full-width" icon="content_paste" label="Coller" @click="load"></q-btn>
-                  </div>
-                  <!-- Local projects -->
-                  <p class="text-overline">Enregistré localement</p>
-                  <div class="row q-mb-sm">
-                    <div class="col-11">
-                      <q-select dense filled v-model="selectLocalProject" :options="localProjects"
-                        label="Projets locaux">
-                      </q-select>
-                    </div>
-                    <div class="col-1 text-center">
-                      <q-btn dense round icon="add" @click="createLocalProject"></q-btn>
-                    </div>
-                  </div>
-                  <div class="row q-mb-sm" v-if="selectLocalProject">
-                    <div class="col-10">
-                      Projet sélectionné: {{ selectLocalProject }}
-                    </div>
-                    <div class="col-1 text-center">
-                      <q-btn dense round flat icon="edit" disable></q-btn>
-                    </div>
-                    <div class="col-1 text-center">
-                      <q-btn dense round flat icon="delete" @click="deleteProject"></q-btn>
-                    </div>
-                  </div>
-                  <!-- Projets OSC -->
-                  <p class="text-overline">Projets Open Source Church</p>
-                  <q-select dense filled :options="OSCProjects" @update:model-value="loadOSCProject"></q-select>
-                </q-card-section>
-              </q-card>
-            </q-expansion-item>
+        <div class="col column full-height">
+          <!-- Tabs -->
+          <q-tabs v-model="tab" class="bg-primary text-white shadow-2">
+            <q-tab name="projet" icon="star" label="Projet"></q-tab>
+            <q-tab name="donnees" icon="description" label="Données"></q-tab>
+            <q-tab name="css" icon="style" label="CSS"></q-tab>
+            <q-tab name="layout" icon="format_shapes" label="Layout"></q-tab>
+          </q-tabs>
+          <!-- Projet -->
+          <q-tab-panels v-model="tab" animated class="col">
+            <q-tab-panel name="projet">
+              <!-- Import / export -->
+              <p class="text-overline">Import / export</p>
+              <div class="row q-mb-sm">
+                <q-btn class="col" flat class="full-width" icon="content_copy" label="Copier" @click="copy"></q-btn>
+                <q-btn class="col" flat class="full-width" icon="file_download" label="Enregistrer" @click="save">
+                </q-btn>
+                <q-btn class="col" flat class="full-width" icon="content_paste" label="Coller" @click="load">
+                </q-btn>
+              </div>
+              <!-- Local projects -->
+              <p class="text-overline">Enregistré localement</p>
+              <div class="row q-mb-sm">
+                <div class="col-11">
+                  <q-select dense filled v-model="selectLocalProject" :options="localProjects" label="Projets locaux">
+                  </q-select>
+                </div>
+                <div class="col-1 text-center">
+                  <q-btn dense round icon="add" @click="createLocalProject"></q-btn>
+                </div>
+              </div>
+              <div class="row q-mb-sm" v-if="selectLocalProject">
+                <div class="col-10">
+                  Projet sélectionné: {{ selectLocalProject }}
+                </div>
+                <div class="col-1 text-center">
+                  <q-btn dense round flat icon="edit" disable></q-btn>
+                </div>
+                <div class="col-1 text-center">
+                  <q-btn dense round flat icon="delete" @click="deleteProject"></q-btn>
+                </div>
+              </div>
+              <!-- Projets OSC -->
+              <p class="text-overline">Projets Open Source Church</p>
+              <q-select dense filled :options="OSCProjects" @update:model-value="loadOSCProject"></q-select>
 
-            <!-- Paramètres -->
-            <q-expansion-item expand-separator icon="settings" label="Paramètres" caption="">
-              <q-card>
-                <q-card-section>
-                  <p class="text-overline">Dimensions de la carte</p>
-                  <div class="row justify-center">
-                    <div class="col-4">
-                      <q-input dense v-model.number="W" type="number" filled hint="largeur">
-                      </q-input>
-                    </div>
-                    <div class="col-1 text-center">×</div>
-                    <div class="col-4">
-                      <q-input dense v-model.number="H" type="number" filled hint="hauteur">
-                      </q-input>
-                    </div>
-                  </div>
-                </q-card-section>
-              </q-card>
-            </q-expansion-item>
+              <!-- Paramètres -->
+              <p class="text-h5">Paramètres</p>
+              <p class="text-overline">Dimensions de la carte</p>
+              <div class="row justify-center">
+                <div class="col-4">
+                  <q-input dense v-model.number="W" type="number" filled hint="largeur">
+                  </q-input>
+                </div>
+                <div class="col-1 text-center">×</div>
+                <div class="col-4">
+                  <q-input dense v-model.number="H" type="number" filled hint="hauteur">
+                  </q-input>
+                </div>
+              </div>
+            </q-tab-panel>
 
             <!-- Données -->
-            <q-expansion-item expand-separator icon="description" label="Données">
-              <!-- Custom header -->
-              <template v-slot:header>
-                <q-item-section avatar>
-                  <q-icon name="description" />
-                </q-item-section>
-                <q-item-section>Données</q-item-section>
-                <q-item-section side>
-                  <div class="row items-center">
-                    <q-btn flat round icon="info" color="info" @click.stop="dialogHelpDonnees">
-                    </q-btn>
-                  </div>
-                </q-item-section>
-              </template>
-              <!-- Carte -->
-              <q-card>
-                <q-tabs v-model="panel2tab" dense class="text-grey" active-color="primary" indicator-color="primary"
-                  align="justify" narrow-indicator>
+            <q-tab-panel name="donnees" class="q-pa-none column">
+              <div class="row">
+                <q-tabs v-model="panel2tab" dense class="col-10 text-grey" active-color="primary"
+                  indicator-color="primary" align="justify" narrow-indicator>
                   <q-tab name="csv" label="CSV"></q-tab>
                   <q-tab name="data" label="Data"></q-tab>
                 </q-tabs>
+                <q-btn class="col-2" flat icon="info" color="info" @click.stop="dialogHelpDonnees">
+              </div>
+              <q-separator></q-separator>
+              <q-tab-panels v-model="panel2tab" animated>
+                <q-tab-panel name="csv" class="q-pa-none">
+                  <q-input v-model="csvSrc" filled type="textarea"></q-input>
+                </q-tab-panel>
 
-                <q-separator></q-separator>
-
-                <q-tab-panels v-model="panel2tab" animated>
-                  <q-tab-panel name="csv" class="q-pa-none">
-                    <q-input v-model="csvSrc" filled type="textarea" />
-                  </q-tab-panel>
-
-                  <q-tab-panel name="data" class="q-pa-none">
-                    <q-table :rows="donnees" :columns="tableHeaders" row-key="name">
-                    </q-table>
-                  </q-tab-panel>
-                </q-tab-panels>
-              </q-card>
-            </q-expansion-item>
+                <q-tab-panel name="data" class="q-pa-none">
+                  <q-table :rows="donnees" :columns="tableHeaders" row-key="name" class="full-height">
+                  </q-table>
+                </q-tab-panel>
+              </q-tab-panels>
+            </q-tab-panel>
 
             <!-- CSS -->
-            <q-expansion-item expand-separator icon="style" label="CSS">
-              <q-card>
-                <q-card-section class="q-pa-none">
-                  <q-input v-model="CSSSrc" filled type="textarea" />
-                </q-card-section>
-              </q-card>
-            </q-expansion-item>
+            <q-tab-panel name="css" class="q-pa-none">
+              <q-input v-model="CSSSrc" filled type="textarea"></q-input>
+            </q-tab-panel>
 
             <!-- Layout -->
-            <q-expansion-item icon="format_shapes" label="Layout">
-              <!-- Custom header -->
-              <template v-slot:header>
-                <q-item-section avatar>
-                  <q-icon name="format_shapes" />
-                </q-item-section>
-                <q-item-section>Layout</q-item-section>
-                <q-item-section side>
-                  <div class="row items-center">
-                    <q-btn flat round icon="info" color="info" @click.stop="dialogHelpLayout">
-                    </q-btn>
-                  </div>
-                </q-item-section>
-              </template>
-              <q-card>
-                <!-- Tabs -->
-                <q-tabs v-model="panelLayoutTabs" dense class="text-grey" active-color="primary"
+            <q-tab-panel name="layout" class="q-pa-none">
+              <!-- Tabs -->
+              <div class="row">
+                <q-tabs v-model="panelLayoutTabs" dense class="col-10 text-grey" active-color="primary"
                   indicator-color="primary" align="justify" narrow-indicator>
                   <q-tab v-for="type in types" :name="type" :label="type"></q-tab>
                 </q-tabs>
-
-                <q-separator></q-separator>
-
-                <q-tab-panels v-model="panelLayoutTabs" animated v-for="type in types">
-                  <q-tab-panel :name="type" class="q-pa-none">
-                    <q-input v-model="layoutSrcTypes[type]" filled type="textarea" />
-                  </q-tab-panel>
-                </q-tab-panels>
-                <q-separator></q-separator>
-                <!-- Original -->
-                <q-card-section class="q-pa-none" v-if="types.length == 0">
-                  <q-input v-model="layoutSrc" filled type="textarea" />
-                </q-card-section>
-              </q-card>
-            </q-expansion-item>
-          </q-list>
+                <q-btn class="col-2" flat icon="info" color="info" @click.stop="dialogHelpDonnees">
+              </div>
+              <q-separator></q-separator>
+              <q-tab-panels v-model="panelLayoutTabs" animated v-for="type in types">
+                <q-tab-panel :name="type" class="q-pa-none">
+                  <q-input v-model="layoutSrcTypes[type]" filled type="textarea"></q-input>
+                </q-tab-panel>
+              </q-tab-panels>
+              <q-separator></q-separator>
+              <!-- Original -->
+              <q-input v-model="layoutSrc" filled type="textarea" v-if="types.length == 0"></q-input>
+            </q-tab-panel>
+          </q-tab-panels>
         </div>
       </template>
       <template v-slot:after>
@@ -179,9 +143,7 @@
             v-html="carte">
           </div>
         </div>
-
       </template>
-
     </q-splitter>
   </div>
 
@@ -197,7 +159,9 @@
   <script src="https://cdn.jsdelivr.net/npm/quasar@2.6.0/dist/quasar.umd.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/quasar@2.6.0/dist/lang/fr.umd.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
-  <script src="https://cdn.rawgit.com/Keyang/node-csvtojson/d41f44aa/browser/csvtojson.min.js"></script>
+  <!-- <script src="https://cdn.rawgit.com/Keyang/node-csvtojson/d41f44aa/browser/csvtojson.min.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/csvtojson@2.0.10/browser/csvtojson.min.js"></script>
+  <!-- <script src="https://unpkg.com/csvtojson@2.0.10/browser/csvtojson.min.js"></script> -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"
     integrity="sha512-+BMamP0e7wn39JGL8nKAZ3yAQT2dL5oaXWr4ZYlTGkKOaoXM/Yj7c4oy50Ngz5yoUutAG17flueD4F6QpTlPng=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -228,6 +192,7 @@
         return {
           // UI things
           splitterModel: 40,
+          tab: "projet",
           panel2tab: "csv",
           panelLayoutTabs: "",
           // CSV un exemple
@@ -278,7 +243,6 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
 <div class="regle texte">%Texte%</div>`
           }, // layout by types
           donnees: [], // données extraites du CSV
-          tyapes: [], // types extraits des données
           W: 64, // dimensions des cartes
           H: 88,
           zoom: 1, // le zoom de la vue des cartes
@@ -334,7 +298,11 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
           })
         },
         types() {
-          return _.uniq(this.donnees.map(d => d.Type)).filter(d => d)
+          var t = _.uniq(this.donnees.map(d => d.Type)).filter(d => d)
+          if (t.length > 0 && !t.includes(this.panelLayoutTabs)) {
+            this.panelLayoutTabs = t[0]
+          }
+          return t
         },
         // Une variable pour les unifier tous
         singleJSON() {
@@ -496,7 +464,7 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
         },
         copy() {
           Quasar.copyToClipboard(JSON.stringify(this.singleJSON, null, 4))
-          .then(() => Quasar.Notify.create("Contenu copié dans le presse-papier."))
+            .then(() => Quasar.Notify.create("Contenu copié dans le presse-papier."))
         },
         load() {
           var self = this
