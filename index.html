@@ -181,6 +181,7 @@
     src="https://cdn.jsdelivr.net/gh/justcaliturner/simple-code-editor/browser/js/dist/code_editor.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.0/build/highlight.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.1/axios.min.js" integrity="sha512-bPh3uwgU5qEMipS/VOmRqynnMXGGSRv+72H/N260MQeXZIK4PG48401Bsby9Nq5P5fz7hy5UGNmC/W1Z51h2GQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
   <script>
     /**
@@ -224,28 +225,57 @@ Règles,,"**Règles**
 *⇒* Lors d’un événement de longue durée, distribuer les cartes aux participant·e·s, qui peuvent se les échanger quand les occasions se présentent.
 
 
-<span class='credits'>**Crédits**
-:CC-BY: *www.holygames.ch*
+<span class='credits'>**Crédits**<br>
+<img src='https://mirrors.creativecommons.org/presskit/buttons/88x31/png/by-sa.png' style='height: 1.5em'> www.holygames.ch
 Adapté de <i>Thanker Cards</i> de Alexandre Quach (#OSG 703)
 </span>"
-Carte,direction-signs,"Grace à toi,, j’ai changé d’avis sur un sujet important", 1
-Carte,crossroad,"Grâce à toi,, j’ai pu prendre une décision difficile", 1
-Carte,honeycomb,"Grâce à toi,, j’ai découvert quelque chose qui va améliorer ma vie"
-Carte,trail,"Grâce à toi,, j’ai progressé dans un domaine de ma vie"
-Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
+Carte,direction-signs,"Grace à toi,<br>j’ai changé d’avis sur un sujet important"
+Carte,crossroad,"Grâce à toi,<br>j’ai pu prendre une décision difficile"
+Carte,honeycomb,"Grâce à toi,<br>j’ai découvert quelque chose qui va améliorer ma vie"
+Carte,trail,"Grâce à toi,<br>j’ai progressé dans un domaine de ma vie"
+Carte,battery-pack,"Grâce à toi,<br>j’ai rechargé mes batteries"
+Carte,weight,"Grâce à toi,<br>j’ai pu déposer quelque chose qui me pesait"
+Carte,star-pupil,"Grâce à toi,<br>j’ai découvert quelque chose sur moi"
+Carte,earth-africa-europe,"Grâce à toi,<br>j’ai pris du recul dans un domaine de ma vie"
+Carte,targeting,"Grâce à toi,<br>j’ai identifié un domaine où je peux progresser"
+Carte,shaking-hands,"Grâce à toi,<br>j’ai fait une belle rencontre"
+Carte,smart,"Grâce à toi,<br>j’ai eu une super idée"
+Carte,progression,"Grâce à toi,<br>j’ai progressé dans un domaine"
+Carte,anchor,"Grâce à toi,<br>j’ai plus d’espérance"
+Carte,blindfold,"Grâce à toi,<br>j’ai plus de confiance"
+Carte,glass-heart,"Grâce à toi,<br>je me sens plus aimé"
+Carte,shining-heart,"Grâce à toi,<br>j’ai plus d’amour à donner"
+Carte,muscle-up,"Grâce à toi,<br>j’ai plus de courage pour affronter une situation"
+Carte,inspiration,"Grâce à toi,<br>j’ai découvert quelque chose sur Dieu / La Vie, l’Univers et le Reste"
+Carte,bookshelf,"Grâce à toi,<br>j’ai appris quelque chose"
+Carte,party-popper,"Grâce à toi,<br>j’ai passé un très bon moment"
+Carte,treasure-map,"Grâce à toi,<br>j’ai un nouveau but"
+Carte,check-mark,"Grâce à toi,<br>j’accepte mieux certaines choses que j’avais du mal à accepter"
+Carte,healing,"Grâce à toi,<br>je me sens mieux"
+Carte,dice-twenty-faces-twenty,"Grâce à toi,<br>j’ai vécu un moment épique dont je vais me souvenir"
+Carte,skills,"Grâce à toi,<br>j’ai développé de nouvelles compétences"
+Carte,self-love,"Grâce à toi,<br>j’ai plus d’estime de moi"
+Carte,open-book,"Grâce à toi,<br>j’ai une nouvelle lecture sur ma liste"
+Carte,throne-king,"Grâce à toi,<br>je me sens plus digne"
+Carte,kneeling,"Grâce à toi,<br>je me sens plus proche de Dieu / La Vie, l’Univers et le Reste"
+Carte,talk,"Grâce à toi,<br>j’ai eu une conversation passionnante"
+Carte,bright-explosion,"Grâce à toi,<br>j’ai plus de joie de vivre"
+Carte,werewolf,"Grâce à toi,<br>j’ai confronté une part d’ombre en moi"
+Carte,nothing-to-say,"Merci,<br>car tu as dis quelque chose qui m’a marqué"
+Carte,three-friends,"Grâce à toi,<br>je me sens moins seul"`,
           // CSS
           CSSSrc: `@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400&display=swap');
-.carte{background: purple; padding: 3mm; border-radius:3mm;  }
+.carte{background: purple; padding: 4mm; border-radius:1mm;  }
 .background { background: white; width: 100%; height: 100%; border-radius:2mm;}
 .icone {height: 26mm; width: 26mm; position: absolute; top: 10mm; left: 19mm;}
 .icone svg, .icone image {width: inherit; height: inherit}
 .icone svg path {fill:purple;}
 .texte{color: purple; position: relative; top: 40mm; width: inherit; padding: 0 5mm; text-align:center; font-size: 5mm; line-height: 1;}
-.logo {width: 10mm; position: absolute; top: 71mm; left: 5mm;}
-.desc {font-size: 3mm; position: absolute; top: 73.6mm; left: 17mm; width: 45mm; line-height: 1; color: purple;}
+.logo {width: 10mm; position: absolute; top: 72mm; left: 6mm;}
+.desc {font-size: 3mm; position: absolute; top: 74.6mm; left: 17mm; width: 42mm; line-height: 1; color: purple;}
 .titre-texte {position:relative; font-size: 9mm; color: white; top:50mm; width: initial; font-family: 'Source Code Pro', monospace;}
 .titre-icone {display: block; width: 30mm; top: 10mm; left: 17mm; position: absolute;}
-.regle.texte {top: 3mm; font-size: 4mm; text-align: left;}
+.regle.texte {top: 2mm; font-size: 4mm; text-align: left; padding: 0 3mm}
 .credits {font-size: 3.3mm;}`,
           // Layout
           layoutSrc: "",
@@ -263,7 +293,7 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
           }, // layout by types
           donnees: [], // données extraites du CSV
           W: 64, // dimensions des cartes
-          H: 88,
+          H: 89,
           zoom: 1, // le zoom de la vue des cartes
           // Enregistrement local
           selectLocalProject: null, // le nom du projet selectionné par le q-select
@@ -375,7 +405,7 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
             localforage.getItem(this.selectLocalProject)
               .then(val => self.loadSingleJSON(val))
           } else {
-            self.H = 88
+            self.H = 89
             self.W = 64
             self.CSSSrc = ""
             self.layoutSrc = ""
@@ -455,7 +485,7 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
             if (data) {
               // On crée un projet vide
               localforage.setItem(data, {
-                params: { H: 88, W: 64 },
+                params: { H: 89, W: 64 },
                 CSS: "",
                 Layout: "",
                 LayoutTypes: {},
