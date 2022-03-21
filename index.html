@@ -9,7 +9,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/svg-injector/1.1.3/svg-injector.min.js"
     integrity="sha512-LpKoEmPyokcDYSjRJ/7WgybgdAYFsKtCrGC9m+VBwcefe1vHXyUnD9fTQb3nXVJda6ny1J84UR+iBtEYm3OQmQ=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/justcaliturner/simple-code-editor/browser/css/dist/code_editor.min.css">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/justcaliturner/simple-code-editor/browser/css/dist/code_editor.min.css">
 
 </head>
 
@@ -19,7 +20,7 @@
     <q-splitter v-model="splitterModel" class="full-height" :limits="[30, 70]" before-class="column">
       <template v-slot:before>
         <!-- Colonne gauche -->
-        <q-resize-observer @resize="onResize" ></q-resize-observer>
+        <q-resize-observer @resize="onResize"></q-resize-observer>
         <div class="col column full-height">
           <!-- Tabs -->
           <q-tabs v-model="tab" class="bg-primary text-white shadow-2">
@@ -97,7 +98,8 @@
               <q-tab-panels v-model="panel2tab" animated class="col">
                 <q-tab-panel name="csv" class="q-pa-none">
                   <!-- <q-input v-model="csvSrc" filled type="textarea"></q-input> -->
-                  <code-editor class="" v-model="csvSrc" height="100%" hide_header font_size="12px" :width="panelWidth+'px'" border_radius="0px"></code-editor>
+                  <code-editor class="" v-model="csvSrc" height="100%" hide_header font_size="12px"
+                    :width="panelWidth+'px'" border_radius="0px"></code-editor>
                 </q-tab-panel>
 
                 <q-tab-panel name="data" class="q-pa-none">
@@ -112,7 +114,8 @@
             <!-- CSS -->
             <q-tab-panel name="css" class="q-pa-none">
               <!-- <q-input v-model="CSSSrc" filled type="textarea"></q-input> -->
-              <code-editor :languages="[['css','CSS']]"  v-model="CSSSrc" height="100%" hide_header font_size="12px" :width="panelWidth+'px'" border_radius="0px"></code-editor>
+              <code-editor :languages="[['css','CSS']]" v-model="CSSSrc" height="100%" hide_header font_size="12px"
+                :width="panelWidth+'px'" border_radius="0px"></code-editor>
             </q-tab-panel>
 
             <!-- Layout -->
@@ -128,12 +131,14 @@
               <q-tab-panels v-model="panelLayoutTabs" animated class="col" v-if="types.length">
                 <q-tab-panel :name="type" v-for="type in types" class="q-pa-none">
                   <!-- <q-input v-model="layoutSrcTypes[type]" filled type="textarea"></q-input> -->
-                  <code-editor :languages="[['html','HTML']]" class="" v-model="layoutSrcTypes[type]" height="100%" hide_header font_size="12px" :width="panelWidth+'px'" border_radius="0px"></code-editor>
+                  <code-editor :languages="[['html','HTML']]" class="" v-model="layoutSrcTypes[type]" height="100%"
+                    hide_header font_size="12px" :width="panelWidth+'px'" border_radius="0px"></code-editor>
                 </q-tab-panel>
               </q-tab-panels>
               <!-- Original -->
               <!-- <q-input v-model="layoutSrc" filled type="textarea" v-if="types.length == 0"></q-input> -->
-              <code-editor class="col" v-if="types.length == 0" :languages="[['html','HTML']]" v-model="layoutSrc" height="100%" hide_header font_size="12px" :width="panelWidth+'px'" border_radius="0px"></code-editor>
+              <code-editor class="col" v-if="types.length == 0" :languages="[['html','HTML']]" v-model="layoutSrc"
+                height="100%" hide_header font_size="12px" :width="panelWidth+'px'" border_radius="0px"></code-editor>
             </q-tab-panel>
           </q-tab-panels>
         </div>
@@ -172,9 +177,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"
     integrity="sha512-+BMamP0e7wn39JGL8nKAZ3yAQT2dL5oaXWr4ZYlTGkKOaoXM/Yj7c4oy50Ngz5yoUutAG17flueD4F6QpTlPng=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdn.jsdelivr.net/gh/justcaliturner/simple-code-editor/browser/js/dist/code_editor.prod.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/gh/justcaliturner/simple-code-editor/browser/js/dist/code_editor.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.0/build/highlight.min.js"></script>
-  
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
   <script>
     /**
     * Utility function to add replaceable CSS.
@@ -208,7 +215,7 @@
           panelLayoutTabs: "",
           panelWidth: null,
           // CSV un exemple
-          csvSrc: `Type,Icone,Texte, N
+          csvSrc: `Type,Icone,Texte[M], N
 Titre, , GRATTI<br>CARTES,
 Règles,,"**Règles**
 
@@ -272,14 +279,26 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
         cartes() {
           // On crée plusieurs cartes pour celles qui ont une valeur N
           var data = this.donnees.flatMap(e => Array(parseInt(e.N) || 1).fill(e))
+
+          // On passe les cartes à la moulinette
           return data.map(d => {
-            // Remplace les valeurs des données CSV: %Nom%
+            // On prend le bon layout
             if (d.Type) {
               var lyt = this.layoutSrcTypes[d.Type] || ""
             } else {
               var lyt = this.layoutSrc
             }
-            this.headers.forEach(H => lyt = lyt.replaceAll("%" + H + "%", d[H]))
+
+            // On remplace les valeurs des données CSV: %Nom%
+            this.headers.forEach(H => {
+              if (H.slice(-3) == "[M]") {
+                // Avec markdown
+                lyt = lyt.replaceAll("%" + H.slice(0, -3) + "%", marked.parse(d[H] || ""))
+              } else {
+                // Sans markdown
+                lyt = lyt.replaceAll("%" + H + "%", d[H])
+              }
+            })
 
             // Macros: icone de game-icons : {{GI:NOM}}
             // Liste des icones: https://seiyria.com/gameicons-font/
@@ -405,6 +424,7 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
           msg.push("Certains noms sont reservés pour des effets particuliers:")
           msg.push("* <code>Type</code> permet de créer différents types de cartes, avec leur propre <b>Layout</b> chacune.")
           msg.push("* <code>N</code> permet de créer plusieurs fois la même carte.")
+          msg.push("Ajouter <code>[M]</code> pour utiliser du markdown. Par exemple <code>Texte[M]</code> signifie que <code>%Texte%</code> sera formatté en markdown avant d'être remplacé.")
 
           Quasar.Dialog.create({
             title: 'Données des cartes',
@@ -505,7 +525,7 @@ Carte,battery-pack,"Grâce à toi,, j’ai rechargé mes batteries"`,
           })
         },
         //UI thing
-        onResize(size){
+        onResize(size) {
           this.panelWidth = size.width
         }
       }
