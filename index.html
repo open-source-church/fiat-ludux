@@ -130,7 +130,7 @@
                   indicator-color="primary" align="justify" narrow-indicator>
                   <q-tab v-for="type in types" :name="type" :label="type"></q-tab>
                 </q-tabs>
-                <q-btn class="col-2" flat icon="info" color="info" @click.stop="dialogHelpDonnees">
+                <q-btn class="col-2" flat icon="info" color="info" @click.stop="dialogHelpLayout">
               </div>
               <q-tab-panels v-model="panelLayoutTabs" animated class="col" v-if="types.length" keep-alive>
                 <q-tab-panel :name="type" v-for="type in types" class="q-pa-none">
@@ -237,6 +237,10 @@
           OSCProjects: [{
             label: "GrattiCartes",
             value: "https://gist.githubusercontent.com/olivierkes/244dddece608d67a3cb68226a915e91b/raw"
+          },
+          {
+            label: "EcclesiaFabula (en dév)",
+            value: "https://gist.githubusercontent.com/olivierkes/87f7114865dc293c1cc4e9f8a59fe752/raw"
           }]
         }
       },
