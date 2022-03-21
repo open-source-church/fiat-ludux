@@ -30,7 +30,7 @@
             <q-tab name="layout" icon="format_shapes" label="Layout"></q-tab>
           </q-tabs>
           <!-- Projet -->
-          <q-tab-panels v-model="tab" animated class="col">
+          <q-tab-panels v-model="tab" animated class="col" keep-alive>
             <q-tab-panel name="projet">
               <p class="text-h5 q-mt-md q-pt-md">Sauvegarde</p>
               <!-- Import / export -->
@@ -99,7 +99,7 @@
                 <q-btn class="col-2" flat icon="info" color="info" @click.stop="dialogHelpDonnees">
               </div>
               <q-separator></q-separator>
-              <q-tab-panels v-model="panel2tab" animated class="col">
+              <q-tab-panels v-model="panel2tab" animated class="col" keep-alive>
                 <q-tab-panel name="csv" class="q-pa-none">
                   <!-- <q-input v-model="csvSrc" filled type="textarea"></q-input> -->
                   <code-editor class="" v-model="csvSrc" height="100%" hide_header font_size="12px"
@@ -132,7 +132,7 @@
                 </q-tabs>
                 <q-btn class="col-2" flat icon="info" color="info" @click.stop="dialogHelpDonnees">
               </div>
-              <q-tab-panels v-model="panelLayoutTabs" animated class="col" v-if="types.length">
+              <q-tab-panels v-model="panelLayoutTabs" animated class="col" v-if="types.length" keep-alive>
                 <q-tab-panel :name="type" v-for="type in types" class="q-pa-none">
                   <!-- <q-input v-model="layoutSrcTypes[type]" filled type="textarea"></q-input> -->
                   <code-editor :languages="[['html','HTML']]" class="" v-model="layoutSrcTypes[type]" height="100%"
@@ -219,82 +219,13 @@
           panel2tab: "csv",
           panelLayoutTabs: "",
           panelWidth: null,
-          // CSV un exemple
-          csvSrc: `Type,Icone,Texte[M], N
-Titre, , GRATTI<br>CARTES,
-Règles,,"**Règles**
-
-*⇒* À deux, en petit groupe, lors d’une cérémonie d’adieu, etc. pour susciter des occasions de se remercier.
-
-*⇒* Lors d’un événement de longue durée, distribuer les cartes aux participant·e·s, qui peuvent se les échanger quand les occasions se présentent.
-
-
-<span class='credits'>**Crédits**<br>
-<img src='https://mirrors.creativecommons.org/presskit/buttons/88x31/png/by-sa.png' style='height: 1.5em'> www.holygames.ch
-Adapté de <i>Thanker Cards</i> de Alexandre Quach (#OSG 703)
-</span>"
-Carte,direction-signs,"Grace à toi,<br>j’ai changé d’avis sur un sujet important"
-Carte,crossroad,"Grâce à toi,<br>j’ai pu prendre une décision difficile"
-Carte,honeycomb,"Grâce à toi,<br>j’ai découvert quelque chose qui va améliorer ma vie"
-Carte,trail,"Grâce à toi,<br>j’ai progressé dans un domaine de ma vie"
-Carte,battery-pack,"Grâce à toi,<br>j’ai rechargé mes batteries"
-Carte,weight,"Grâce à toi,<br>j’ai pu déposer quelque chose qui me pesait"
-Carte,star-pupil,"Grâce à toi,<br>j’ai découvert quelque chose sur moi"
-Carte,earth-africa-europe,"Grâce à toi,<br>j’ai pris du recul dans un domaine de ma vie"
-Carte,targeting,"Grâce à toi,<br>j’ai identifié un domaine où je peux progresser"
-Carte,shaking-hands,"Grâce à toi,<br>j’ai fait une belle rencontre"
-Carte,smart,"Grâce à toi,<br>j’ai eu une super idée"
-Carte,progression,"Grâce à toi,<br>j’ai progressé dans un domaine"
-Carte,anchor,"Grâce à toi,<br>j’ai plus d’espérance"
-Carte,blindfold,"Grâce à toi,<br>j’ai plus de confiance"
-Carte,glass-heart,"Grâce à toi,<br>je me sens plus aimé"
-Carte,shining-heart,"Grâce à toi,<br>j’ai plus d’amour à donner"
-Carte,muscle-up,"Grâce à toi,<br>j’ai plus de courage pour affronter une situation"
-Carte,inspiration,"Grâce à toi,<br>j’ai découvert quelque chose sur Dieu / La Vie, l’Univers et le Reste"
-Carte,bookshelf,"Grâce à toi,<br>j’ai appris quelque chose"
-Carte,party-popper,"Grâce à toi,<br>j’ai passé un très bon moment"
-Carte,treasure-map,"Grâce à toi,<br>j’ai un nouveau but"
-Carte,check-mark,"Grâce à toi,<br>j’accepte mieux certaines choses que j’avais du mal à accepter"
-Carte,healing,"Grâce à toi,<br>je me sens mieux"
-Carte,dice-twenty-faces-twenty,"Grâce à toi,<br>j’ai vécu un moment épique dont je vais me souvenir"
-Carte,skills,"Grâce à toi,<br>j’ai développé de nouvelles compétences"
-Carte,self-love,"Grâce à toi,<br>j’ai plus d’estime de moi"
-Carte,open-book,"Grâce à toi,<br>j’ai une nouvelle lecture sur ma liste"
-Carte,throne-king,"Grâce à toi,<br>je me sens plus digne"
-Carte,kneeling,"Grâce à toi,<br>je me sens plus proche de Dieu / La Vie, l’Univers et le Reste"
-Carte,talk,"Grâce à toi,<br>j’ai eu une conversation passionnante"
-Carte,bright-explosion,"Grâce à toi,<br>j’ai plus de joie de vivre"
-Carte,werewolf,"Grâce à toi,<br>j’ai confronté une part d’ombre en moi"
-Carte,nothing-to-say,"Merci,<br>car tu as dis quelque chose qui m’a marqué"
-Carte,three-friends,"Grâce à toi,<br>je me sens moins seul"`,
+          // CSV 
+          csvSrc: ``,
           // CSS
-          CSSSrc: `@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400&display=swap');
-.carte{background: purple; padding: 4mm; border-radius:1mm;  }
-.background { background: white; width: 100%; height: 100%; border-radius:2mm;}
-.icone {height: 26mm; width: 26mm; position: absolute; top: 10mm; left: 19mm;}
-.icone svg, .icone image {width: inherit; height: inherit}
-.icone svg path {fill:purple;}
-.texte{color: purple; position: relative; top: 40mm; width: inherit; padding: 0 5mm; text-align:center; font-size: 5mm; line-height: 1;}
-.logo {width: 10mm; position: absolute; top: 72mm; left: 6mm;}
-.desc {font-size: 3mm; position: absolute; top: 74.6mm; left: 17mm; width: 42mm; line-height: 1; color: purple;}
-.titre-texte {position:relative; font-size: 9mm; color: white; top:50mm; width: initial; font-family: 'Source Code Pro', monospace;}
-.titre-icone {display: block; width: 30mm; top: 10mm; left: 17mm; position: absolute;}
-.regle.texte {top: 2mm; font-size: 4mm; text-align: left; padding: 0 3mm}
-.credits {font-size: 3.3mm;}`,
+          CSSSrc: ``,
           // Layout
           layoutSrc: "",
-          layoutSrcTypes: {
-            Titre: `<img class="titre-icone" src="https://i.ibb.co/k4CVVc7/logo-cube-seul-white.png">
-<div class="titre-texte texte">%Texte%</div>`,
-            Carte: `<div class="background">
-<div class="icone">{{GI:%Icone%}}</div>
-<div class="texte">%Texte%</div>
-<img src="https://i.ibb.co/x2Srz4s/logo-cube-seul.png" class="logo">
-<div class="desc">Donnez cette carte à quelqu'un, en lui expliquant pourquoi.</div>
-</div>`,
-            Règles: `<div class="background">
-<div class="regle texte">%Texte%</div>`
-          }, // layout by types
+          layoutSrcTypes: {}, // layout by types
           donnees: [], // données extraites du CSV
           W: 64, // dimensions des cartes
           H: 89,
@@ -397,10 +328,19 @@ Carte,three-friends,"Grâce à toi,<br>je me sens moins seul"`,
           handler() { updateStyle(this.CSS) }
         },
         // Une variable pour les contrôler toutes
-        singleJSON() {
-          if (this.selectLocalProject) {
-            this.saveLocalProject()
+        singleJSON: {
+          deep: true,
+          handler() {
+            if (this.selectLocalProject) {
+              this.saveLocalProject()
+            }
           }
+        },
+        types () {
+          // Pour garder la réactivité
+          this.types.forEach(t => {
+            Object.assign(this.layoutSrcTypes, {[t]: this.layoutSrcTypes[t] || ""})
+          })
         },
         // Le projet local change
         selectLocalProject() {
@@ -413,7 +353,8 @@ Carte,three-friends,"Grâce à toi,<br>je me sens moins seul"`,
             self.W = 64
             self.CSSSrc = ""
             self.layoutSrc = ""
-            self.layoutSrcTypes = {}
+            // self.layoutSrcTypes = {} FIXME on doit pas faire ça car ça supprime la reactivité
+            Object.keys(self.layoutSrcTypes).forEach(t => delete self.layoutSrcTypes[t])
             self.csvSrc = ""
           }
         }
@@ -434,7 +375,7 @@ Carte,three-friends,"Grâce à toi,<br>je me sens moins seul"`,
           this.W = val.params.W
           this.CSSSrc = val.CSS
           this.layoutSrc = val.Layout
-          this.layoutSrcTypes = _.cloneDeep(val.LayoutTypes)
+          Object.assign(this.layoutSrcTypes, val.LayoutTypes)
           this.csvSrc = val.CSV
         },
         // Dialogues d'aide
