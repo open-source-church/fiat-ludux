@@ -17,7 +17,7 @@
 <body>
   <!-- example of injection point where you write your app template -->
   <div id="q-app" style="height: 100vh; width: 100%;">
-    <q-splitter v-model="splitterModel" class="full-height" :limits="[30, 70]" before-class="column">
+    <q-splitter v-model="splitterModel" class="full-height" :limits="[30, 70]" before-class="column" after-class="column">
       <template v-slot:before>
         <!-- Colonne gauche -->
         <q-resize-observer @resize="onResize"></q-resize-observer>
@@ -38,12 +38,15 @@
               <p>Un fichier JSON qui contient toutes les données du projet en cour.</p>
               <div class="row q-mb-sm">
                 <q-btn class="col" flat class="full-width" icon="content_copy" label="Copier" @click="copy"></q-btn>
-                <q-btn class="col" flat class="full-width" icon="file_download" label="Enregistrer" @click="save"></q-btn>
+                <q-btn class="col" flat class="full-width" icon="file_download" label="Enregistrer" @click="save">
+                </q-btn>
                 <q-btn class="col" flat class="full-width" icon="content_paste" label="Coller" @click="load"></q-btn>
               </div>
               <!-- Local projects -->
               <p class="text-subtitle1">Projet locaux</p>
-              <p>Vos projet sont enregistrés localement dans votre navigateur. Attention: ces données peuvent êtres effacées. Pour conserver une sauvegarde de votre projet, utilisez le boutton "Enregistrer" ci-dessus pour télécharger un fichier .json.</p>
+              <p>Vos projet sont enregistrés localement dans votre navigateur. Attention: ces données peuvent êtres
+                effacées. Pour conserver une sauvegarde de votre projet, utilisez le boutton "Enregistrer" ci-dessus
+                pour télécharger un fichier .json.</p>
               <div class="row q-mb-sm">
                 <div class="col-11">
                   <q-select dense filled v-model="selectLocalProject" :options="localProjects" label="Projets locaux">
@@ -166,6 +169,21 @@
             v-html="carte">
           </div>
         </div>
+        <div v-if="cartes.length==0" class="no-print col row justify-center">
+          <div class="col-8 column justify-center">
+            <q-card class="col-9">
+              <q-card-section class="column full-height">
+                <div class="text-h4">Fiat Ludux</div>
+                <div class="text-caption2 q-mb-sm">by <a href="https://www.theologeek.ch">théologeek</a> @ <a
+                    href="https://www.open-source.church">Open Source Church</a></div>
+                <q-separator class="q-mb-sm"></q-separator>
+                <q-scroll-area class="col full-width">
+                  <div v-html="help"></div>
+                </q-scroll-area>
+              </q-card-section>
+            </q-card>
+          </div>
+        </div>
       </template>
     </q-splitter>
   </div>
@@ -174,6 +192,19 @@
     .carte {
       float: left;
       position: relative;
+    }
+
+    .q-card__section code {
+      white-space: nowrap;
+      display: inline-block;
+      padding: 2px 4px 4px;
+      line-height: 1;
+      font-size: .8em;
+      color: #616161;
+      background: linear-gradient(-225deg, #d5dbe4, #f8f8f8);
+      border-radius: 4px;
+      box-shadow: inset 0 -2px #cdcde6, inset 0 0 1px 1px #fff, 0 1px 2px 1px #1e235a66;
+      margin: 0 0.2em;
     }
   </style>
 
@@ -192,7 +223,9 @@
     src="https://cdn.jsdelivr.net/gh/justcaliturner/simple-code-editor/browser/js/dist/code_editor.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.0/build/highlight.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.1/axios.min.js" integrity="sha512-bPh3uwgU5qEMipS/VOmRqynnMXGGSRv+72H/N260MQeXZIK4PG48401Bsby9Nq5P5fz7hy5UGNmC/W1Z51h2GQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.1/axios.min.js"
+    integrity="sha512-bPh3uwgU5qEMipS/VOmRqynnMXGGSRv+72H/N260MQeXZIK4PG48401Bsby9Nq5P5fz7hy5UGNmC/W1Z51h2GQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
   <script>
     /**
@@ -248,6 +281,10 @@
           {
             label: "EcclesiaFabula (en dév)",
             value: "https://gist.githubusercontent.com/olivierkes/87f7114865dc293c1cc4e9f8a59fe752/raw"
+          },
+          {
+            label: "AMEN",
+            value: "https://gist.githubusercontent.com/olivierkes/5f16da342288ed621af416968c2c3349/raw"
           }]
         }
       },
@@ -281,8 +318,7 @@
             lyt = lyt.replaceAll(/\{\{GI:(.*?)\}\}/g, '<img src="https://seiyria.com/gameicons-font/svg/$1.svg" onload="SVGInjector(this)"/>')
 
             return lyt
-          }
-          )
+          })
         },
         headers() {
           content = this.csvSrc.split('\n')
@@ -323,6 +359,37 @@
             LayoutTypes: _.cloneDeep(this.layoutSrcTypes),
             CSV: this.csvSrc
           }
+        },
+        help() {
+          var help = `Fiat Ludux est un outil de création de jeux de cartes, pour prototypage rapide.
+
+**Les composantes principales sont:**
+
+- **Les données:** au format CSV (coma separated value). La première ligne donne le nom des catégories,
+  utilisées pour les Layouts.
+- **Layout:** au format HTML. Chaque carte des données sera générée avec le contenu entré ici. S'il y a
+  une colone \`Type\`, alors chaque type de carte peut avoir son propre layout. Le contenu des
+  données est utilisé avec \`%%\`, par exemple \`%Nom%\` pour reprendre le contenu de la colonne
+  \`Nom\`.
+- **CSS:** la mise en forme, au format CSS.
+
+Pour **exporter en PDF** ou **imprimer**, lancez simplement l'impression avec le navigateur \`fichier -> imprimer\` ou \`CTRL+P\`, réglez le papier et les marges, et c'est partit !
+
+**Noms de colonnes CSV réservées:** <kbd>Test</kbd>
+
+- \`N\`: chaque carte sera répétée \`N\` fois.
+- \`Type\`: permet d'avoir des layouts différents.
+- \`[M]]\`: formattage en markdown. Ajouter \`[M]\` à une colonne, par exemple \`Texte[M]\` pour que \`%Texte%\` soit d'abord formatté en markdown avant d'être rendu.
+
+**Projets Open Source Church**
+
+Vous pouvez importez les projets OSC suivant, pour voir comment ça fonctionne, ou vous faire plaisir avec.
+
+- **AMEN:** Un quizz biblique et hilarant
+- **GrattiCartes:** un jeu pour s'entraîner à la grattitude
+- **EcclesiaFabula:** un jeu en développement pour raconter des histoires dans des églises
+`
+          return marked.parse(help)
         }
       },
       watch: {
@@ -347,10 +414,10 @@
             }
           }
         },
-        types () {
+        types() {
           // Pour garder la réactivité
           this.types.forEach(t => {
-            Object.assign(this.layoutSrcTypes, {[t]: this.layoutSrcTypes[t] || ""})
+            Object.assign(this.layoutSrcTypes, { [t]: this.layoutSrcTypes[t] || "" })
           })
         },
         // Le projet local change
