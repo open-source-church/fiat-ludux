@@ -186,17 +186,28 @@
               </div>
               <q-separator></q-separator>
               <q-tab-panels v-model="panel2tab" animated class="col" keep-alive>
+
+                <!-- CSV source -->
                 <q-tab-panel name="csv" class="q-pa-none">
-                  <!-- <q-input v-model="csvSrc" filled type="textarea"></q-input> -->
                   <code-editor class="" v-model="csvSrc" height="100%" hide_header font_size="12px"
                     :width="panelWidth+'px'" border_radius="0px"></code-editor>
                 </q-tab-panel>
 
-                <q-tab-panel name="data" class="q-pa-none">
-                  <q-scroll-area class="fit" visible>
-                    <q-table :rows="donnees" :columns="tableHeaders" row-key="name" class="full-height">
-                    </q-table>
-                  </q-scroll-area>
+                <!-- Données éditables -->
+                <q-tab-panel name="data" class="row">
+                  <q-input borderless dense debounce="300" v-model="dataFilter" placeholder="Filtre" class="col-6 offset-6">
+                    <template v-slot:append>
+                      <q-icon name="search" />
+                    </template>
+                  </q-input>
+                  <q-card class="col-12 q-mb-sm" v-for="d in filteredDonnees" :key="d">
+                    <q-card-section>
+                      <div class="row" v-for="key in Object.keys(d)" :key="key">
+                        <div class="col-4 text-caption">{{ key }}</div>
+                        <q-input v-model="d[key]" dense autogrow class="col-8"></q-input>
+                      </div>
+                    </q-card-section>
+                  </q-card>
                 </q-tab-panel>
               </q-tab-panels>
             </q-tab-panel>
@@ -321,8 +332,9 @@
   <script src="https://cdn.jsdelivr.net/npm/quasar@2.6.0/dist/lang/fr.umd.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
   <!-- <script src="https://cdn.rawgit.com/Keyang/node-csvtojson/d41f44aa/browser/csvtojson.min.js"></script> -->
-  <script src="https://cdn.jsdelivr.net/npm/csvtojson@2.0.10/browser/csvtojson.min.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/csvtojson@2.0.10/browser/csvtojson.min.js"></script> -->
   <!-- <script src="https://unpkg.com/csvtojson@2.0.10/browser/csvtojson.min.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"
     integrity="sha512-+BMamP0e7wn39JGL8nKAZ3yAQT2dL5oaXWr4ZYlTGkKOaoXM/Yj7c4oy50Ngz5yoUutAG17flueD4F6QpTlPng=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -374,6 +386,8 @@
           layoutSrc: "",
           layoutSrcTypes: {}, // layout by types
           donnees: [], // données extraites du CSV
+          waitCSV: false, // une variable pour éviter les conversions en boucle dans les watches
+          dataFilter: "", // pour filtrer le tableau
           W: 64, // dimensions des cartes
           H: 89,
           crop: {
@@ -406,31 +420,7 @@
           var data = this.donnees.flatMap(e => Array(parseInt(e.N) || 1).fill(e))
 
           // On passe les cartes à la moulinette
-          return data.map(d => {
-            // On prend le bon layout
-            if (d.Type) {
-              var lyt = this.layoutSrcTypes[d.Type] || ""
-            } else {
-              var lyt = this.layoutSrc
-            }
-
-            // On remplace les valeurs des données CSV: %Nom%
-            this.headers.forEach(H => {
-              if (H.slice(-3) == "[M]") {
-                // Avec markdown
-                lyt = lyt.replaceAll("%" + H.slice(0, -3) + "%", marked.parse(d[H] || ""))
-              } else {
-                // Sans markdown
-                lyt = lyt.replaceAll("%" + H + "%", d[H])
-              }
-            })
-
-            // Macros: icone de game-icons : {{GI:NOM}}
-            // Liste des icones: https://seiyria.com/gameicons-font/
-            lyt = lyt.replaceAll(/\{\{GI:(.*?)\}\}/g, '<img src="https://seiyria.com/gameicons-font/svg/$1.svg" onload="SVGInjector(this)"/>')
-
-            return lyt
-          })
+          return data.map(d => this.generateCard(d))
         },
         headers() {
           content = this.csvSrc.split('\n')
@@ -458,6 +448,10 @@
             this.panelLayoutTabs = t[0]
           }
           return t
+        },
+        // Les données filtrées dans l'onglet Données / Data
+        filteredDonnees () {
+          return this.donnees.filter(d => JSON.stringify(d).toLowerCase().includes(this.dataFilter.toLowerCase()))
         },
         // Une variable pour les unifier tous
         singleJSON() {
@@ -507,11 +501,34 @@ Vous pouvez importez les projets OSC suivant, pour voir comment ça fonctionne, 
       },
       watch: {
         // On met à jour les données quand le CSV change
-        csvSrc: {
-          immediate: true,
-          async handler() {
-            this.donnees = await csv().fromString(this.csvSrc).then((result) => result)
-          },
+        // csvSrc: {
+        //   immediate: true,
+        //   async handler() {
+        //     this.donnees = await csv().fromString(this.csvSrc).then((result) => result)
+        //   },
+        // },
+        csvSrc () { 
+          if (!this.waitCSV) {
+            this.waitCSV = true
+            this.donnees = Papa.parse(this.csvSrc, {header: true}).data
+          } else {
+            // csvSrc vient d'être modifiée, donc on parse pas
+            this.waitCSV = false
+          }
+        },
+        // On met à jour le CSV quand les données changent
+        donnees: {
+          deep: true, // parce que c'est un array d'Objets
+          handler() {
+            if (!this.waitCSV) {
+              this.waitCSV = true
+              var csv = Papa.unparse(this.donnees)
+              if (csv !== this.csvSrc) this.csvSrc = csv
+            } else {
+              // donnees vient d'être modifié, donc on unparse pas
+              this.waitCSV = false
+            }
+          }
         },
         // On met à jour le style des cartes quand le CSS change
         CSS: {
@@ -562,6 +579,32 @@ Vous pouvez importez les projets OSC suivant, pour voir comment ça fonctionne, 
         this.saveLocalProject = Quasar.debounce(this.saveLocalProject, 1000)
       },
       methods: {
+        // Générer les cartes
+        generateCard(val) {
+          // On prend le bon layout
+          if (val.Type) {
+            var lyt = this.layoutSrcTypes[val.Type] || ""
+          } else {
+            var lyt = this.layoutSrc
+          }
+
+          // On remplace les valeurs des données CSV: %Nom%
+          this.headers.forEach(H => {
+            if (H.slice(-3) == "[M]") {
+              // Avec markdown
+              lyt = lyt.replaceAll("%" + H.slice(0, -3) + "%", marked.parse(val[H] || ""))
+            } else {
+              // Sans markdown
+              lyt = lyt.replaceAll("%" + H + "%", val[H])
+            }
+          })
+
+          // Macros: icone de game-icons : {{GI:NOM}}
+          // Liste des icones: https://seiyria.com/gameicons-font/
+          lyt = lyt.replaceAll(/\{\{GI:(.*?)\}\}/g, '<img src="https://seiyria.com/gameicons-font/svg/$1.svg" onload="SVGInjector(this)"/>')
+
+          return lyt
+        },
         // IO
         /*
         On charge les variables locales à partir du One JSON.
