@@ -123,23 +123,55 @@
 
               <!-- Paramètres -->
               <p class="text-h5 q-mt-md q-pt-md">Paramètres</p>
-              <q-card>
-                <q-card-section>
-                  <p class="text-overline">Dimensions de la carte</p>
-                  <div class="row justify-center">
-                    <div class="col-4">
-                      <q-input dense v-model.number="W" type="number" filled hint="largeur">
-                      </q-input>
-                    </div>
-                    <div class="col-1 text-center">×</div>
-                    <div class="col-4">
-                      <q-input dense v-model.number="H" type="number" filled hint="hauteur">
-                      </q-input>
-                    </div>
-                  </div>
-                </q-card-section>
-              </q-card>
+              <q-list bordered class="rounded-borders">
+                <!-- Dimension des cartes -->
+                <q-expansion-item expand-separator icon="aspect_ratio" label="Dimensions de la carte">
+                  <q-card>
+                    <q-card-section>
+                      <div class="row justify-center">
+                        <div class="col-4">
+                          <q-input dense outlined v-model.number="W" type="number" hint="largeur"></q-input>
+                        </div>
+                        <div class="col-1 text-center">×</div>
+                        <div class="col-4">
+                          <q-input dense outlined v-model.number="H" type="number" hint="hauteur"></q-input>
+                        </div>
+                      </div>
+                    </q-card-section>
+                  </q-card>
+                </q-expansion-item>
 
+                <!-- Marques de découpe -->
+                <q-expansion-item expand-separator label="Marques de découpe">
+                  <template v-slot:header>
+                    <q-item-section avatar>
+                      <q-avatar icon="crop"></q-avatar>
+                    </q-item-section>
+                    <q-item-section>Marques de découpe</q-item-section>
+                    <q-item-section side>
+                      <q-toggle class="col-3" v-model="crop.active" />
+                    </q-item-section>
+                  </template>
+                  <q-card>
+                    <q-card-section class="row items-center q-gutter-y-sm">
+                      <!-- Couleur -->
+                      <div class="col-4 text-caption">Couleur</div>
+                      <q-input outlined dense v-model="crop.color" class="col-8">
+                        <template v-slot:append>
+                          <q-icon name="colorize" class="cursor-pointer">
+                            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                              <q-color v-model="crop.color"></q-color>
+                            </q-popup-proxy>
+                          </q-icon>
+                        </template>
+                      </q-input>
+                      <!-- Taille -->
+                      <div class="col-4 text-caption">Taille (mm)</div>
+                      <q-input dense outlined v-model.number="crop.size" type="number"></q-input>
+                    </q-card-section>
+                  </q-card>
+                </q-expansion-item>
+              </q-list>
             </q-tab-panel>
 
             <!-- Données -->
@@ -208,8 +240,9 @@
             <q-slider v-model="zoom" :min="0.1" :max="2" :step="0.1"></q-slider>
           </div>
         </div>
-        <div v-if="cartes.length" class="col feuille" :style="{zoom: zoom}">
-          <div class="carte" v-for="carte in cartes" :key="carte" :style="{ width: W + 'mm', height: H + 'mm' }"
+        <div v-if="cartes.length" class="col feuille" :style="{zoom: zoom, margin: crop.active ? crop.size + 'mm': 0}">
+          <div class="carte" v-for="carte in cartes" :key="carte"
+            :style="{ width: W + 'mm', height: H + 'mm', '--cropColor': crop.color, '--cropSize': -crop.size + 'mm', '--cropActive': crop.active ? 'block': 'none' }"
             v-html="carte">
           </div>
         </div>
@@ -249,6 +282,31 @@
       border-radius: 4px;
       box-shadow: inset 0 -2px #cdcde6, inset 0 0 1px 1px #fff, 0 1px 2px 1px #1e235a66;
       margin: 0 0.2em;
+    }
+
+    div.carte:before,
+    div:after {
+      position: absolute;
+      content: '';
+      border: solid var(--cropColor);
+      z-index: -1;
+      display: var(--cropActive);
+    }
+
+    div.carte:before {
+      top: var(--cropSize);
+      bottom: var(--cropSize);
+      left: 0;
+      right: 0;
+      border-width: 0 1px;
+    }
+
+    div.carte:after {
+      left: var(--cropSize);
+      right: var(--cropSize);
+      top: 0;
+      bottom: 0;
+      border-width: 1px 0;
     }
   </style>
 
@@ -313,6 +371,11 @@
           donnees: [], // données extraites du CSV
           W: 64, // dimensions des cartes
           H: 89,
+          crop: {
+            active: true,
+            color: "#ff0000",
+            size: 2
+          },
           zoom: 1, // le zoom de la vue des cartes
           // Enregistrement local
           selectLocalProject: null, // le nom du projet selectionné par le q-select
@@ -394,10 +457,11 @@
         // Une variable pour les unifier tous
         singleJSON() {
           return {
-            params: {
+            params: _.cloneDeep({
               H: this.H,
-              W: this.W
-            },
+              W: this.W,
+              crop: this.crop
+            }),
             CSS: this.CSSSrc,
             Layout: this.layoutSrc,
             LayoutTypes: _.cloneDeep(this.layoutSrcTypes),
@@ -473,6 +537,11 @@ Vous pouvez importez les projets OSC suivant, pour voir comment ça fonctionne, 
           } else {
             self.H = 89
             self.W = 64
+            self.crop = {
+              active: true,
+              color: "#ff0000",
+              size: 2
+            },
             self.CSSSrc = ""
             self.layoutSrc = ""
             // self.layoutSrcTypes = {} FIXME on doit pas faire ça car ça supprime la reactivité
@@ -495,6 +564,7 @@ Vous pouvez importez les projets OSC suivant, pour voir comment ça fonctionne, 
         loadSingleJSON(val) {
           this.H = val.params.H
           this.W = val.params.W
+          this.crop = val.params.crop || {active: false, color: "#000", size: 2}
           this.CSSSrc = val.CSS
           this.layoutSrc = val.Layout
           Object.assign(this.layoutSrcTypes, val.LayoutTypes)
