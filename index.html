@@ -19,7 +19,8 @@
 <body>
   <!-- example of injection point where you write your app template -->
   <div id="q-app" style="height: 100vh; width: 100%;">
-    <q-splitter v-model="splitterModel" class="full-height" :limits="[30, 70]" before-class="column" after-class="column">
+    <q-splitter v-model="splitterModel" class="full-height" :limits="[30, 70]" before-class="column"
+      after-class="column">
       <template v-slot:before>
         <!-- Colonne gauche -->
         <q-resize-observer @resize="onResize"></q-resize-observer>
@@ -34,69 +35,110 @@
           <!-- Projet -->
           <q-tab-panels v-model="tab" animated class="col" keep-alive>
             <q-tab-panel name="projet">
-              <p class="text-h5 q-mt-md q-pt-md">Sauvegarde</p>
-              <!-- Import / export -->
-              <p class="text-subtitle1">Import / export JSON</p>
-              <p>Un fichier JSON qui contient toutes les données du projet en cour.</p>
-              <div class="row q-mb-sm">
-                <q-btn stack class="col" flat class="full-width" icon="content_copy" label="Copier" @click="copy"></q-btn>
-                <q-btn stack class="col" flat class="full-width" icon="file_download" label="Exporter" @click="save">
-                </q-btn>
-                <q-btn stack class="col" flat class="full-width" icon="content_paste" label="Coller" @click="load"></q-btn>
-              </div>
-              <!-- Local projects -->
-              <p class="text-subtitle1">Enregistrement local</p>
-              <p>Vos projet sont enregistrés localement dans votre navigateur. Attention: ces données peuvent êtres
-                effacées. Pour conserver une sauvegarde de votre projet, utilisez le boutton "Enregistrer" ci-dessus
-                pour télécharger un fichier .json.</p>
-              <div class="row q-mb-sm">
-                <div class="col-11">
-                  <q-select dense filled v-model="selectLocalProject" :options="localProjects" label="Projets locaux">
-                  </q-select>
-                </div>
-                <div class="col-1 text-center">
-                  <q-btn dense round icon="save" @click="createLocalProject"></q-btn>
-                </div>
-              </div>
-              <div class="row q-mb-sm" v-if="selectLocalProject">
-                <div class="col-10">
-                  <b>Projet sélectionné:</b> {{ selectLocalProject }}
-                </div>
-                <div class="col-1 text-center">
-                  <q-btn dense round flat icon="edit" disable></q-btn>
-                </div>
-                <div class="col-1 text-center">
-                  <q-btn dense round flat icon="delete" @click="deleteProject"></q-btn>
-                </div>
-                Les modifications sont enregistrées automatiquement.
-              </div>
-              <!-- Projets OSC -->
-              <p class="text-subtitle1">Importer un projet Open Source Church</p>
-              <div class="row">
-                <p class="col-10">Vous pouvez importer un projet Open Source Church. Si êtes sur un projet local,
-                  celui-ci sera remplacé (créez un nouveau projet avant si vous souhaitez éviter cela.).
-                  Faites-vous plaisir avec — et si vous en dérivez des trucs cool, partagez-les :)
-                </p>
-                <a class="col-2" href="https://www.open-source.church" target="_blank">
-                  <img src="https://www.open-source.church/images/logo/logo.webp" style="height: fit-content;">
-                </a>
-              </div>
-              <q-select dense filled :options="OSCProjects" @update:model-value="loadOSCProject"></q-select>
+              <p class="text-h5 q-pt-md">Sauvegarde</p>
+              <q-list bordered class="rounded-borders">
+                <q-expansion-item expand-separator icon="perm_identity" label="Import / Export JSON"
+                  caption="Un fichier JSON pour les contrôler tous">
+                  <q-card>
+                    <q-card-section>
+                      <!-- Import / export -->
+                      <div class="row q-mb-sm">
+                        <q-btn stack class="col" flat class="full-width" icon="content_copy" label="Copier"
+                          @click="copy"></q-btn>
+                        <q-btn stack class="col" flat class="full-width" icon="file_download" label="Exporter"
+                          @click="save"></q-btn>
+                        <q-btn stack class="col" flat class="full-width" icon="content_paste" label="Coller"
+                          @click="load"></q-btn>
+                      </div>
+                      <p class="text-caption">Un fichier JSON qui contient toutes les données du projet en cour.</p>
+                    </q-card-section>
+                  </q-card>
+                </q-expansion-item>
+
+                <q-expansion-item expand-separator icon="signal_wifi_off" label="Enregistrement local"
+                  :caption="selectLocalProject ? 'Projet sélectionné: ' + selectLocalProject: 'Pas enregistré localement'">
+                  <q-card>
+                    <q-card-section>
+                      <!-- Local projects -->
+                      <div class="row q-mb-sm">
+                        <div class="col-10">
+                          <q-select dense outlined v-model="selectLocalProject" :options="localProjects"
+                            label="Projets locaux">
+                          </q-select>
+                        </div>
+                        <div class="col-2 text-center">
+                          <q-btn dense round icon="save" @click="createLocalProject"></q-btn>
+                        </div>
+                      </div>
+                      <div class="row q-mb-sm items-center" v-if="selectLocalProject">
+                        <div class="col-10">
+                          <b>Projet sélectionné:</b> {{ selectLocalProject }}
+                        </div>
+                        <div class="col-2 text-center">
+                          <q-btn dense round flat icon="delete" @click="deleteProject"></q-btn>
+                        </div>
+                        <p class="text-caption">Les modifications sont enregistrées automatiquement.</p>
+                      </div>
+                      <p class="text-caption">Vos projet sont enregistrés localement dans votre navigateur. Attention:
+                        ces données peuvent êtres
+                        effacées par d'autres applications. Pour conserver une sauvegarde de votre projet, utilisez le
+                        boutton "Enregistrer" ci-dessus
+                        pour télécharger un fichier .json.</p>
+                    </q-card-section>
+                  </q-card>
+                </q-expansion-item>
+
+                <q-expansion-item expand-separator label="Importer un projet Open Source Church">
+                  <template v-slot:header>
+                    <q-item-section avatar>
+                      <q-avatar>
+                        <img src="https://tools.open-source.church/wp-content/uploads/2022/03/osc-logo-plain-trans.png">
+                      </q-avatar>
+                    </q-item-section>
+                    <q-item-section>Projets Open Source Church</q-item-section>
+                  </template>
+                  <q-card>
+                    <q-card-section>
+                      <!-- Projets OSC -->
+                      <div class="row">
+                        <p class="text-caption col-9">Vous pouvez importer un projet Open Source Church. Si êtes sur un
+                          projet local,
+                          celui-ci sera remplacé (créez un nouveau projet avant si vous souhaitez éviter cela.).
+                        </p>
+                        <a class="col-3" href="https://www.open-source.church" target="_blank">
+                          <img src="https://www.open-source.church/images/logo/logo.webp"
+                            style="width: 100%; height: fit-content;">
+                        </a>
+                        <p class="text-caption col-12">
+                          Faites-vous plaisir avec — et si vous en dérivez des trucs cool, partagez-les :)
+                        </p>
+                      </div>
+                      <q-select dense outlined :options="OSCProjects" @update:model-value="loadOSCProject"
+                        label="Choisissez un projet à charger"></q-select>
+                    </q-card-section>
+                  </q-card>
+                </q-expansion-item>
+
+              </q-list>
 
               <!-- Paramètres -->
               <p class="text-h5 q-mt-md q-pt-md">Paramètres</p>
-              <p class="text-overline">Dimensions de la carte</p>
-              <div class="row justify-center">
-                <div class="col-4">
-                  <q-input dense v-model.number="W" type="number" filled hint="largeur">
-                  </q-input>
-                </div>
-                <div class="col-1 text-center">×</div>
-                <div class="col-4">
-                  <q-input dense v-model.number="H" type="number" filled hint="hauteur">
-                  </q-input>
-                </div>
-              </div>
+              <q-card>
+                <q-card-section>
+                  <p class="text-overline">Dimensions de la carte</p>
+                  <div class="row justify-center">
+                    <div class="col-4">
+                      <q-input dense v-model.number="W" type="number" filled hint="largeur">
+                      </q-input>
+                    </div>
+                    <div class="col-1 text-center">×</div>
+                    <div class="col-4">
+                      <q-input dense v-model.number="H" type="number" filled hint="hauteur">
+                      </q-input>
+                    </div>
+                  </div>
+                </q-card-section>
+              </q-card>
 
             </q-tab-panel>
 
