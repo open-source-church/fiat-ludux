@@ -237,10 +237,12 @@
         <!-- Colonne droite -->
         <div v-if="cartes.length" class="col-auto row no-print">
           <div class="col-10 offset-1">
+            <!-- Zoom -->
             <q-slider v-model="zoom" :min="0.1" :max="2" :step="0.1"></q-slider>
           </div>
         </div>
         <div v-if="cartes.length" class="col feuille" :style="{zoom: zoom, margin: crop.active ? crop.size + 'mm': 0}">
+          <!-- Cartes -->
           <div class="carte" v-for="carte in cartes" :key="carte"
             :style="{ width: W + 'mm', height: H + 'mm', '--cropColor': crop.color, '--cropSize': -crop.size + 'mm', '--cropActive': crop.active ? 'block': 'none' }"
             v-html="carte">
@@ -250,6 +252,7 @@
           <div class="col-8 column justify-center">
             <q-card class="col-9">
               <q-card-section class="column full-height">
+                <!-- Écran d'info -->
                 <div class="text-h4">Fiat Ludux</div>
                 <div class="text-caption2 q-mb-sm">by <a href="https://www.theologeek.ch">théologeek</a> @ <a
                     href="https://www.open-source.church">Open Source Church</a></div>
@@ -269,6 +272,8 @@
     .carte {
       float: left;
       position: relative;
+      margin-left: -1px; /* useful for crop marks */
+      margin-top: -1px;
     }
 
     .q-card__section code {
