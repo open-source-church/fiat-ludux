@@ -39,13 +39,13 @@
               <p class="text-subtitle1">Import / export JSON</p>
               <p>Un fichier JSON qui contient toutes les données du projet en cour.</p>
               <div class="row q-mb-sm">
-                <q-btn class="col" flat class="full-width" icon="content_copy" label="Copier" @click="copy"></q-btn>
-                <q-btn class="col" flat class="full-width" icon="file_download" label="Enregistrer" @click="save">
+                <q-btn stack class="col" flat class="full-width" icon="content_copy" label="Copier" @click="copy"></q-btn>
+                <q-btn stack class="col" flat class="full-width" icon="file_download" label="Exporter" @click="save">
                 </q-btn>
-                <q-btn class="col" flat class="full-width" icon="content_paste" label="Coller" @click="load"></q-btn>
+                <q-btn stack class="col" flat class="full-width" icon="content_paste" label="Coller" @click="load"></q-btn>
               </div>
               <!-- Local projects -->
-              <p class="text-subtitle1">Projet locaux</p>
+              <p class="text-subtitle1">Enregistrement local</p>
               <p>Vos projet sont enregistrés localement dans votre navigateur. Attention: ces données peuvent êtres
                 effacées. Pour conserver une sauvegarde de votre projet, utilisez le boutton "Enregistrer" ci-dessus
                 pour télécharger un fichier .json.</p>
@@ -161,7 +161,7 @@
       </template>
       <template v-slot:after>
         <!-- Colonne droite -->
-        <div class="col-auto row no-print">
+        <div v-if="cartes.length" class="col-auto row no-print">
           <div class="col-10 offset-1">
             <q-slider v-model="zoom" :min="0.1" :max="2" :step="0.1"></q-slider>
           </div>
